@@ -1,0 +1,151 @@
+:root {
+    --primary-color: #84283e;
+    --bs-link-color-rgb: 132, 40, 62; /* For matching link color */
+     --bs-link-hover-color-rgb: 94, 28, 44; /* Darker hover */
+}
+
+body {
+    font-family: 'Inter', sans-serif; /* Or 'Poppins' */
+    background-color: #f8f9fa; /* Light gray layout background */
+}
+
+/* Theme color application */
+.bg-theme-primary { background-color: var(--primary-color) !important; }
+.text-theme-primary { color: var(--primary-color) !important; }
+.btn-theme-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+}
+.btn-theme-primary:hover {
+    background-color: #6a2031; /* Darker shade */
+    border-color: #5f1c2b;
+    color: #fff;
+}
+.btn-outline-theme-primary {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+ .btn-outline-theme-primary:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.sidebar {
+    width: 280px;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+.content {
+    flex-grow: 1;
+    transition: margin-left 0.3s ease-in-out;
+     padding-bottom: 80px; /* Space for mobile bottom nav */
+}
+
+/* Sidebar collapsed state (example, can be toggled with JS if needed, or use offcanvas) */
+/* For pure Bootstrap, using offcanvas might be simpler */
+
+/* Mobile bottom navigation */
+.mobile-bottom-nav {
+    background-color: #fff;
+    box-shadow: 0 -2px 5px rgba(0,0,0,.1);
+}
+.mobile-bottom-nav .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #6c757d; /* text-muted */
+    padding: 0.5rem 0;
+    border-radius: 1rem; /* rounded corners */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.mobile-bottom-nav .nav-link.active {
+    color: var(--primary-color);
+     background-color: rgba(132, 40, 62, 0.1); /* Light theme bg */
+}
+ .mobile-bottom-nav .nav-link:hover {
+     background-color: #e9ecef; /* Light hover */
+ }
+.mobile-bottom-nav i {
+    font-size: 1.5rem; /* Larger icons */
+    margin-bottom: 0.25rem;
+}
+
+/* Custom card styles */
+.card-hover {
+     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+.card-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+.mobile-action-card {
+     border-radius: 1rem !important; /* Ensure rounded corners */
+     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+ .mobile-action-card:hover {
+     transform: translateY(-3px);
+     box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.1) !important;
+ }
+
+
+/* Ensure full height for sidebar layout */
+@media (min-width: 768px) {
+    body {
+         overflow-y: hidden; /* Prevent double scrollbars */
+    }
+    .wrapper {
+        display: flex;
+         min-height: 100vh;
+    }
+    .content {
+         overflow-y: auto; /* Allow content to scroll */
+         height: 100vh;
+         padding-bottom: 20px; /* Reset padding */
+    }
+}
+ /* Adjust padding for mobile view */
+@media (max-width: 767.98px) {
+    .content {
+        padding-bottom: 80px; /* Ensure space for bottom nav */
+    }
+}
+
+:root { --primary-color: #84283e; --bs-primary-rgb: 132, 40, 62; }
+.sidebar .nav-link.active { background-color: var(--primary-color) !important; color: white !important; }
+.sidebar .nav-link.active i { color: white !important; }
+@media (max-width: 767.98px) { .content-area-mobile { padding-bottom: 80px !important; } }
+.sidebar .nav-link.disabled { font-size: 0.85rem; padding-left: 0.75rem; color: #6c757d !important; background-color: transparent !important; pointer-events: none;}
+.offcanvas-body .nav-link.disabled { font-size: 0.8rem; padding-left: 0; color: #6c757d !important; background-color: transparent !important; pointer-events: none; }
+
+.form-section-legend { font-size: 1.1rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
+.form-label { font-weight: 500; }
+@media (max-width: 767.98px) { .add-form-card { margin-bottom: 2rem; } }
+.party-option-type { font-size: 0.8em; color: #6c757d; margin-left: 5px; }
+
+/* Table Input Styling */
+.item-table input[type=number] { max-width: 85px; /* Adjusted width */ }
+.item-table select, .item-table input { font-size: 0.85rem; /* Slightly smaller font */ }
+.item-table .form-control-sm { height: calc(1.5em + 0.5rem + 2px); padding: 0.25rem 0.4rem; }
+ .item-table .form-select-sm { height: calc(1.5em + 0.5rem + 2px); padding: 0.25rem 1rem 0.25rem 0.5rem; }
+.item-table .amount-display { font-weight: 500; }
+.item-table .btn-remove-item { color: #dc3545; padding: 0.25rem 0.5rem; }
+tfoot th { font-size: 1.1rem; }
+
+@media (max-width: 576px) {
+    .item-table input[type=number] { max-width: 65px; } /* Adjusted mobile width */
+    .item-table th, .item-table td { padding: 0.4rem; font-size: 0.75rem; } /* Smaller padding/font */
+    .item-table .amount-display.small { font-size: 0.75rem; }
+}
+ .total-amount-display {
+     font-size: 1.2rem;
+     font-weight: 600;
+     color: var(--primary-color);
+ }

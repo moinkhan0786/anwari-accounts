@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daybook Report - Anwari Enterprises</title>
+
+    {# --- CSS Includes --- #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {# <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}"> #}
+
+    <style>
+        :root {
+            --theme-color: #84283e;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --header-bg: #f8f9fa;
+            --body-bg-screen: #f0f2f5;
+            --container-bg: #ffffff;
+            --danger-light: #f8d7da; /* For Expense/Paid */
+            --success-light: #d1e7dd; /* For Sales/Received */
+            --info-light: #cfe2ff;    /* For Purchase */
+        }
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--body-bg-screen);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .report-container {
+            max-width: 21cm; /* A4 width */
+            min-height: 28cm;
+            margin: 1.5rem auto;
+            background-color: var(--container-bg);
+            padding: 1.5cm 1.2cm;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+            border: 1px solid var(--border-color);
+            border-top: 6px solid var(--theme-color);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        /* Header */
+        .report-header h1 { color: var(--theme-color); font-weight: 700; font-size: 1.6rem; margin-bottom: 0.25rem; }
+        .report-header p { margin-bottom: 0.1rem; font-size: 0.9rem; color: var(--text-muted); }
+        .report-info p { margin-bottom: 0.25rem; font-size: 0.85rem; }
+        .report-info strong { font-weight: 600; color: var(--text-color); min-width: 80px; display: inline-block;}
+
+        /* Title */
+        .report-title { font-size: 1.4rem; font-weight: 600; text-align: center; margin: 1.5rem 0 1.8rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--theme-color); }
+
+        /* Table */
+        .daybook-table { font-size: 0.85rem; margin-bottom: 0; border: 1px solid var(--border-color); }
+        .daybook-table thead th { background-color: var(--header-bg) !important; font-weight: 600; border-bottom-width: 2px; border-color: #adb5bd !important; color: #343a40; padding: 0.5rem 0.6rem; text-align: center; white-space: nowrap; }
+        .daybook-table thead th.text-start { text-align: left !important; }
+        .daybook-table thead th.text-end { text-align: right !important; }
+        .daybook-table tbody td { padding: 0.4rem 0.6rem; vertical-align: middle; border-top: 1px solid #f1f1f1 !important; border-right: 1px solid #f1f1f1 !important; }
+        .daybook-table tbody td:first-child { border-left: none !important; white-space: nowrap; }
+        .daybook-table tbody td:last-child { border-right: none !important;}
+        .daybook-table .notes-col { white-space: normal; min-width: 150px; font-size: 0.8rem; color: var(--text-muted);}
+        /* Optional: Subtle background based on type for screen view */
+        /* .daybook-table tbody tr.type-sale td { background-color: var(--success-light); } */
+        /* .daybook-table tbody tr.type-purchase td { background-color: var(--info-light); } */
+        /* .daybook-table tbody tr.type-expense td { background-color: var(--danger-light); } */
+        /* .daybook-table tbody tr:hover td { background-color: #e9ecef !important; } */
+        .daybook-table tbody tr td { background-color: #fff !important; } /* Keep it clean for now */
+
+        .daybook-table tfoot th, .daybook-table tfoot td { font-weight: 600; font-size: 0.9rem; border-top: 2px solid var(--text-color) !important; padding: 0.5rem 0.6rem; background-color: #f8f9fa; }
+
+        /* Footer */
+        .report-footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+
+        /* Print-specific styles */
+        @media print {
+            body { background-color: #ffffff; font-size: 9pt; }
+            .report-container { max-width: 100%; min-height: auto; margin: 0; padding: 0; box-shadow: none; border: none; border-top: none;}
+            .no-print { display: none !important; }
+            .report-header h1 { font-size: 14pt; color: #000 !important; }
+            .report-title { font-size: 12pt; color: #000 !important; border-bottom-color: #ccc !important; }
+            .daybook-table { font-size: 8pt; }
+            .daybook-table thead th { background-color: #eee !important; color: #000 !important; border-color: #bbb !important; font-size: 7.5pt; padding: 0.3rem 0.4rem;}
+            .daybook-table tbody td { border-color: #ddd !important; padding: 0.3rem 0.4rem; background-color: #fff !important; }
+            .daybook-table tfoot th, .daybook-table tfoot td { font-size: 8.5pt; border-top-color: #333 !important; background-color: #eee !important; }
+            .report-footer { border-top-color: #ccc !important; font-size: 7pt; }
+            tr, td, th, div, p, section, header, footer { page-break-inside: avoid !important; }
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
+        }
+        @page { size: A4; margin: 1cm; }
+    </style>
+</head>
+
+<body>
+
+    <div class="container my-4 no-print">
+        <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+             <a href="{{ url_for('reports.report_form') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i> Back to Reports Form
+            </a>
+            <div>
+                 <button class="btn btn-sm btn-primary rounded-pill" onclick="window.print();">
+                     <i class="bi bi-printer me-1"></i> Print Daybook
+                 </button>
+                 {# Export buttons removed #}
+            </div>
+        </div>
+    </div>
+
+    <div class="report-container">
+        {# --- Report Header --- #}
+        <header class="row report-header mb-4 align-items-center">
+            <div class="col-7">
+                {# <img src="{{ url_for('static', filename='logo1.png') }}" alt="Logo" class="logo no-print mb-2" style="max-height: 50px;"> #}
+               <h1>Anwari Enterprises</h1>
+               <p>47, Maluka Street NH09 Hapur Bypass, Hapur, UP, 245101</p>
+               <p>Contact: +91 11 6927 0510 | GSTIN: YOUR_GSTIN_HERE</p>
+           </div>
+           <div class="col-5 text-end report-info">
+                <h2 class="h5 mb-3">Daybook Report</h2>
+                 {# Assuming start_date and end_date passed from route #}
+                <p><strong>Period:</strong> {{ start_date.strftime('%d-%b-%Y') if start_date else 'Start' }} to {{ end_date.strftime('%d-%b-%Y') if end_date else 'End' }}</p>
+                <p><strong>Generated By:</strong> {{ generated_by or 'System' }}</p>
+                <p><strong>Generated On:</strong> {{ generated_on.strftime('%d-%b-%Y %I:%M %p') if generated_on else 'N/A' }} </p>
+           </div>
+        </header>
+
+        <h3 class="report-title">DAILY TRANSACTIONS REGISTER</h3>
+
+        {# --- Transactions Table --- #}
+        <section class="statement-section">
+             <div class="table-responsive">
+                 <table class="table daybook-table table-bordered table-sm table-hover">
+                      <thead class="table-light">
+                         <tr>
+                             <th scope="col" class="text-start" style="width: 10%;">Date</th>
+                             <th scope="col" class="text-start" style="width: 12%;">Type</th>
+                             <th scope="col" class="text-start" style="width: 23%;">Party / Category</th>
+                             <th scope="col" class="text-start" style="width: 25%;">Notes / Reference</th>
+                             <th scope="col" class="text-end" style="width: 15%;">Debit (₹)</th>
+                             <th scope="col" class="text-end" style="width: 15%;">Credit (₹)</th>
+                         </tr>
+                     </thead>
+                      <tbody>
+                          {# Loop through combined 'transactions' list passed from route #}
+                          {# Backend needs to ensure each 'tx' has: date, type, party_name, notes_or_ref, debit, credit #}
+                         {% for tx in transactions %}
+                          <tr>
+                              <td>{{ tx.date.strftime('%d-%b-%Y') }}</td>
+                              <td>
+                                 {# Add icons for quick scanning (optional) #}
+                                 {% if tx.type == 'Sale' %}<i class="bi bi-cart-check-fill text-success me-1" title="Sale"></i>Sale
+                                 {% elif tx.type == 'Purchase' %}<i class="bi bi-cart-plus-fill text-info me-1" title="Purchase"></i>Purchase
+                                 {% elif tx.type == 'Pmt Recd' %}<i class="bi bi-arrow-down-circle-fill text-success me-1" title="Payment Received"></i>Pmt Recd
+                                 {% elif tx.type == 'Pmt Paid' %}<i class="bi bi-arrow-up-circle-fill text-danger me-1" title="Payment Paid"></i>Pmt Paid
+                                 {% elif tx.type == 'Expense' %}<i class="bi bi-wallet2 text-warning me-1" title="Expense"></i>Expense
+                                 {% else %}{{ tx.type }}
+                                 {% endif %}
+                              </td>
+                              <td>{{ tx.party_name or '-' }}</td> {# Backend provides party name or category name here #}
+                              <td class="notes-col">{{ tx.notes_or_ref or '-' }}</td> {# Backend provides notes/ref #}
+                              <td class="text-end">{{ "{:,.2f}".format(tx.debit) if tx.debit > 0 else '' }}</td>
+                              <td class="text-end">{{ "{:,.2f}".format(tx.credit) if tx.credit > 0 else '' }}</td>
+                          </tr>
+                         {% else %}
+                          <tr>
+                              <td colspan="6" class="text-center text-muted p-4">No transactions found for this period.</td>
+                          </tr>
+                         {% endfor %}
+                     </tbody>
+                      <tfoot>
+                           <tr>
+                              <th colspan="4" class="text-end">Period Totals:</th>
+                               <th class="text-end">₹ {{ "{:,.2f}".format(total_debit or 0) }}</th> {# Pass total_debit from route #}
+                               <th class="text-end">₹ {{ "{:,.2f}".format(total_credit or 0) }}</th> {# Pass total_credit from route #}
+                           </tr>
+                      </tfoot>
+                 </table>
+             </div>
+        </section>
+
+
+         {# --- Footer --- #}
+         <footer class="report-footer">
+              <p>This is a computer-generated report.</p>
+              <p>&copy; {{ generated_on.year if generated_on else '2025' }} Anwari Enterprises. All Rights Reserved.</p>
+         </footer>
+
+    </div> {# End report-container #}
+
+</body>
+</html>

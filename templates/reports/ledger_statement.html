@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ledger Statement - {{ party.name }}</title>
+
+    {# --- CSS Includes --- #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {# <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}"> #}
+
+    <style>
+        :root {
+            --theme-color: #84283e;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --header-bg: #f8f9fa;
+            --body-bg-screen: #f0f2f5; /* Slightly different background */
+            --container-bg: #ffffff;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--body-bg-screen);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .report-container {
+            max-width: 21cm; /* A4 width */
+            min-height: 28cm;
+            margin: 2rem auto;
+            background-color: var(--container-bg);
+            padding: 1.5cm 1.2cm; /* Generous padding */
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+            border: 1px solid var(--border-color);
+            border-top: 6px solid var(--theme-color); /* Thicker accent border */
+            border-radius: 4px;
+            position: relative;
+        }
+
+        /* Header */
+        .report-header .logo { max-height: 50px; margin-bottom: 0.75rem; }
+        .report-header h1 { color: var(--theme-color); font-weight: 700; font-size: 1.5rem; margin-bottom: 0.1rem; }
+        .report-header p { margin-bottom: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+        .report-info { text-align: right; }
+        .report-info p { margin-bottom: 0.2rem; font-size: 0.85rem; }
+        .report-info strong { font-weight: 600; color: var(--text-color); }
+
+        /* Title */
+        .report-title { font-size: 1.25rem; font-weight: 600; text-transform: uppercase; text-align: center; color: #333; margin: 1.8rem 0 1.8rem 0; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-color); }
+
+        /* Party Details */
+        .party-details { margin-bottom: 1.8rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .party-details h6 { font-weight: 600; color: var(--text-muted); margin-bottom: 0.6rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .party-details dt { font-weight: 500; color: var(--text-muted); padding-right: 0.5em; width: 80px; /* Adjust as needed */ float: left; clear: left; }
+        .party-details dd { margin-left: 90px; /* Should be > dt width */ margin-bottom: 0.3rem; font-weight: 500; font-size: 0.9rem; }
+
+        /* Statement Table */
+        .statement-table { font-size: 0.85rem; margin-bottom: 0; border: 1px solid var(--border-color); }
+        .statement-table thead th { background-color: var(--header-bg) !important; font-weight: 600; border-bottom-width: 1px; border-color: #adb5bd !important; color: #343a40; padding: 0.5rem 0.6rem; text-align: center; white-space: nowrap; }
+        .statement-table thead th.text-start { text-align: left !important; }
+        .statement-table thead th.text-end { text-align: right !important; }
+        .statement-table tbody td { padding: 0.5rem 0.6rem; vertical-align: middle; border-top: 1px solid #f1f1f1 !important; border-right: 1px solid #f1f1f1 !important; }
+        .statement-table tbody td:first-child { border-left: none !important;}
+        .statement-table tbody td:last-child { border-right: none !important;}
+        .statement-table tbody tr:nth-child(odd) td { background-color: #fafafa; } /* Subtle striping for screen */
+        .statement-table tbody tr:hover td { background-color: #f0f0f0; } /* Hover effect for screen */
+        .statement-table .particulars-col { white-space: normal; min-width: 220px; }
+        .statement-table .balance-col span { font-size: 0.85em; color: var(--text-muted); margin-left: 4px; font-weight: normal; }
+        .statement-table tfoot th, .statement-table tfoot td { font-weight: 600; font-size: 0.9rem; border-top: 2px solid var(--text-color) !important; padding: 0.6rem 0.75rem; background-color: #f8f9fa; }
+
+        /* Footer */
+        .report-footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+
+        /* Print-specific styles */
+        @media print {
+            body { background-color: #ffffff; font-size: 9pt; }
+            .report-container { max-width: 100%; min-height: auto; margin: 0; padding: 0; box-shadow: none; border: none; }
+            .no-print { display: none !important; }
+            .report-header h1 { font-size: 14pt; color: #000 !important; }
+            .report-title { font-size: 11pt; color: #000 !important; border-bottom-color: #ccc !important; }
+            .party-details, .statement-table, .report-footer { font-size: 8.5pt; }
+            .party-details { border-bottom-color: #ccc !important; }
+             .party-details dt { width: 70px; }
+             .party-details dd { margin-left: 75px; }
+            .party-details h6 { color: #000 !important; }
+            .statement-table thead th { background-color: #eee !important; color: #000 !important; border-color: #bbb !important; font-size: 8pt; padding: 0.4rem 0.5rem;}
+            .statement-table tbody td { border-color: #ddd !important; padding: 0.4rem 0.5rem; background-color: #fff !important; } /* Remove striping for print */
+            .statement-table tfoot th, .statement-table tfoot td { font-size: 9pt; border-top-color: #333 !important; background-color: #eee !important; }
+            .report-footer { border-top-color: #ccc !important; font-size: 7.5pt; }
+            tr, td, th, div, p, section, header, footer, dl, dt, dd { page-break-inside: avoid !important; }
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
+        }
+        @page { size: A4; margin: 1cm; }
+    </style>
+</head>
+
+<body>
+
+    <div class="container my-4 no-print">
+        <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+             <a href="{{ url_for('reports.report_form') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i> Back to Reports Form
+            </a>
+            <div>
+                 <button class="btn btn-sm btn-primary rounded-pill" onclick="window.print();">
+                     <i class="bi bi-printer me-1"></i> Print Statement
+                 </button>
+                
+            </div>
+        </div>
+         <p class="text-muted small text-center mt-2">Note: PDF/Excel export requires separate backend setup.</p>
+    </div>
+
+    <div class="report-container">
+        {# --- Report Header --- #}
+        <header class="row report-header mb-4 align-items-center">
+            <div class="col-7">
+                 <img src="{{ url_for('static', filename='logo1.png') }}" alt="Anwari Enterprises" class="logo no-print mb-2" style="max-height: 50px;">
+                 {# <div class="logo-placeholder no-print mb-2">Logo</div> #}
+                <h1>Anwari Enterprises</h1>
+                <p>47, Maluka Street NH09 Hapur Bypass, Hapur, UP, 245101</p>
+                <p>Contact: +91 11 6927 0510 |</p>
+                {# Add PAN, Reg No etc. if needed #}
+            </div>
+            <div class="col-5 text-end report-info">
+                 <h2 class="h5 mb-3">Ledger Statement</h2>
+                 <p><strong>Statement Period:</strong></p>
+                 <p>{{ start_date.strftime('%d-%b-%Y') if start_date else 'Beginning' }} to {{ end_date.strftime('%d-%b-%Y') if end_date else 'Today' }}</p>
+                 <p><strong>Generated On:</strong> {{ generated_at_datetime.strftime('%d-%b-%Y %I:%M %p') if generated_at_datetime else 'Current Time' }}</p>
+            </div>
+        </header>
+
+        {# --- Party Details --- #}
+        <section class="party-details">
+             <h6>Account Of:</h6>
+             <dl class="row">
+                 <dt class="col-sm-3">Name</dt>
+                 <dd class="col-sm-9 fw-bold">{{ party.name }}</dd>
+
+                 <dt class="col-sm-3">Address</dt>
+                 <dd class="col-sm-9">{{ party.address or '-' }}</dd>
+
+                  <dt class="col-sm-3">Contact</dt>
+                 <dd class="col-sm-9">{{ party.contact_info or '-' }}</dd>
+
+                 <dt class="col-sm-3">Type</dt>
+                 <dd class="col-sm-9">{{ 'Seller (Supplier)' if party.party_type == PartyType.Supplier else 'Customer' }}</dd>
+
+                 <dt class="col-sm-3">GSTIN</dt>
+                 <dd class="col-sm-9">{{ party.gstin_number or '-' }}</dd>
+
+                 <dt class="col-sm-3">PAN</dt>
+                 <dd class="col-sm-9">{{ party.pan_number or '-' }}</dd>
+             </dl>
+        </section>
+
+        <h3 class="report-title">STATEMENT OF ACCOUNT</h3>
+
+        {# --- Statement Table --- #}
+        <section class="statement-section">
+             <table class="table statement-table table-bordered table-sm table-hover"> {# Added table-hover #}
+                  <thead class="table-light">
+                     <tr>
+                         <th scope="col" class="text-start" style="width: 12%;">Date</th>
+                         <th scope="col" class="text-start" style="width: 43%;">Particulars</th>
+                         <th scope="col" class="text-end" style="width: 15%;">Debit (₹)</th>
+                         <th scope="col" class="text-end" style="width: 15%;">Credit (₹)</th>
+                         <th scope="col" class="text-end" style="width: 15%;">Balance (₹)</th>
+                     </tr>
+                 </thead>
+                  <tbody>
+                      {# Opening Balance Row (Placeholder - Requires backend logic) #}
+                      {#
+                      <tr class="table-light">
+                          <td>{{ start_date.strftime('%d-%b-%Y') if start_date else 'Start' }}</td>
+                          <td><strong>Opening Balance</strong></td>
+                          <td class="text-end">{{ "{:,.2f}".format(opening_balance_debit) if opening_balance > 0 else '' }}</td>
+                          <td class="text-end">{{ "{:,.2f}".format(abs(opening_balance_credit)) if opening_balance < 0 else '' }}</td>
+                           <td class="text-end balance-col fw-medium">
+                                {{ "{:,.2f}".format(abs(opening_balance)) }}
+                               <span>{{ 'Dr' if opening_balance > 0 else 'Cr' }}</span>
+                           </td>
+                      </tr>
+                      #}
+                     {# Loop through statement entries generated by the route #}
+                     {% for entry in statement_entries %}
+                      <tr>
+                          <td>{{ entry.date.strftime('%d-%b-%Y') }}</td>
+                          <td class="particulars-col">{{ entry.particulars }}</td>
+                          <td class="text-end">{{ "{:,.2f}".format(entry.debit) if entry.debit > 0 else '' }}</td> {# Show empty if zero #}
+                          <td class="text-end">{{ "{:,.2f}".format(entry.credit) if entry.credit > 0 else '' }}</td>{# Show empty if zero #}
+                           <td class="text-end balance-col">
+                                {{ "{:,.2f}".format(entry.running_balance.copy_abs()) }}
+                               <span>{{ 'Dr' if entry.running_balance > 0 else ('Cr' if entry.running_balance < 0 else '') }}</span> {# Handle zero balance #}
+                           </td>
+                      </tr>
+                     {% else %}
+                      <tr>
+                          <td colspan="5" class="text-center text-muted p-4">No transactions found for this period.</td>
+                      </tr>
+                     {% endfor %}
+                 </tbody>
+                  <tfoot>
+                       <tr>
+                          <th colspan="4" class="text-end">Closing Balance as on {{ end_date.strftime('%d-%b-%Y') if end_date else 'Date' }}:</th>
+                           <th class="text-end">
+                               {{ "{:,.2f}".format(current_balance.copy_abs()) }}
+                               <span style="font-size: 0.85em; color: var(--text-muted); font-weight: normal;">{{ 'Dr' if current_balance > 0 else ('Cr' if current_balance < 0 else '') }}</span>
+                          </th>
+                       </tr>
+                  </tfoot>
+             </table>
+        </section>
+
+         {# --- Footer --- #}
+         <footer class="report-footer">
+              <p>This is a computer-generated statement.</p>
+              <p>&copy; {{ generated_at_datetime.year if generated_at_datetime else '2025' }} Anwari Enterprises. All Rights Reserved.</p> {# Use current year if generation time not available #}
+         </footer>
+
+    </div> {# End report-container #}
+
+</body>
+</html>

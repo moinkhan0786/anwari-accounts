@@ -1,0 +1,42 @@
+Anwari Accounts/
+├── app.py
+├── items.py
+├── models.py
+├── party.py
+├── requirements.txt
+├── mysql/
+│   └── database.sql
+├── routes/
+│   ├── __init__.py
+│   ├── login.py
+│   ├── parties.py
+│   ├── payments.py
+│   ├── purchase.py
+│   ├── reports.py
+│   └── sales.py
+├── static/
+│   ├── index.css
+│   └── login.css
+└── templates/
+    ├── add_party.html
+    ├── dashboard.html
+    ├── login.html
+    ├── parties.html
+    ├── party_detail.html
+    ├── payments/
+    │   ├── add_payment.html
+    │   └── payments_list.html
+    ├── purchase/
+    │   ├── add_purchase.html
+    │   ├── list_purchases.html
+    │   └── view_purchase.html
+    └── sales/
+        ├── add_sale.html
+        ├── list_sales.html
+        └── view_sale.html
+    reports/
+    ├── report_form.html
+    ├── ledger_statement.html
+    ├── daybook.html
+    ├── item_report.html
+    └── monthly_summary.html

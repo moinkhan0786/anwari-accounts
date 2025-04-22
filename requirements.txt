@@ -1,0 +1,20 @@
+# Core Flask and extensions
+Flask
+Flask-SQLAlchemy
+
+# Database Driver (for MySQL)
+mysql-connector-python-rf
+
+# Data Handling
+pandas
+
+# PDF Generation from HTML/CSS
+WeasyPrint
+
+# Optional but recommended:
+python-dotenv    # For loading environment variables from a .env file (like DB credentials)
+Flask-Migrate    # For handling database schema migrations with Alembic
+
+# You might also need a WSGI server for deployment (like Gunicorn or Waitress)
+gunicorn      # Example for Linux deployment
+waitress      # Example for Windows/cross-platform deployment

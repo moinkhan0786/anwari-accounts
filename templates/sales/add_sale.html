@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Sale Bill - Anwari Enterprises</title>
+
+    {# --- CSS Includes --- #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+
+    {# --- CSS Styles --- #}
+    <style>
+        :root { --primary-color: #84283e; --bs-primary-rgb: 132, 40, 62; }
+        .sidebar .nav-link.active { background-color: var(--primary-color) !important; color: white !important; }
+        .sidebar .nav-link.active i { color: white !important; }
+        @media (max-width: 767.98px) { .content-area-mobile { padding-bottom: 80px !important; } }
+        .sidebar .nav-link.disabled { font-size: 0.85rem; padding-left: 0.75rem; color: #6c757d !important; background-color: transparent !important; pointer-events: none;}
+        .offcanvas-body .nav-link.disabled { font-size: 0.8rem; padding-left: 0; color: #6c757d !important; background-color: transparent !important; pointer-events: none; }
+
+        .form-section-legend { font-size: 1.1rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
+        .form-label { font-weight: 500; }
+        @media (max-width: 767.98px) { .add-form-card { margin-bottom: 2rem; } }
+        .party-option-type { font-size: 0.8em; color: #6c757d; margin-left: 5px; }
+
+        /* Table Input Styling */
+        .item-table input[type=number] { max-width: 85px; /* Adjusted width */ }
+        .item-table select, .item-table input { font-size: 0.85rem; /* Slightly smaller font */ }
+        .item-table .form-control-sm { height: calc(1.5em + 0.5rem + 2px); padding: 0.25rem 0.4rem; }
+         .item-table .form-select-sm { height: calc(1.5em + 0.5rem + 2px); padding: 0.25rem 1rem 0.25rem 0.5rem; }
+        .item-table .amount-display { font-weight: 500; }
+        .item-table .btn-remove-item { color: #dc3545; padding: 0.25rem 0.5rem; }
+        tfoot th { font-size: 1.1rem; }
+
+        @media (max-width: 576px) {
+            .item-table input[type=number] { max-width: 65px; } /* Adjusted mobile width */
+            .item-table th, .item-table td { padding: 0.4rem; font-size: 0.75rem; } /* Smaller padding/font */
+            .item-table .amount-display.small { font-size: 0.75rem; }
+        }
+         .total-amount-display {
+             font-size: 1.2rem;
+             font-weight: 600;
+             color: var(--primary-color);
+         }
+    </style>
+</head>
+
+<body>
+    {# --- Desktop Wrapper --- #}
+    <div class="wrapper d-none d-md-flex">
+        {# --- === FULL Sidebar Section === --- #}
+        <aside class="sidebar bg-white shadow-sm p-3 d-flex flex-column">
+            <a href="{{ url_for('home') }}"
+                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <i class="bi bi-box-seam fs-4 me-2 text-theme-primary"></i>
+                <span class="fs-5 fw-bold">Anwari Ent.</span>
+            </a>
+            <hr>
+
+            {# Add a wrapper div for scrollability #}
+            <div style="overflow-y: auto; flex-grow: 1; max-height: calc(100vh - 160px);"> {# Adjust max-height as
+                needed #}
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a href="{{ url_for('home') }}"
+                            class="nav-link {{ 'active' if active_page == 'dashboard' else 'text-dark' }}">
+                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                        </a>
+                    </li>
+
+                    {# --- Purchase Section --- #}
+                    <li class="nav-item mt-2"><span class="nav-link disabled">PURCHASE</span></li>
+                    <li>
+                        <a href="{{ url_for('purchase.add_purchase') }}"
+                            class="nav-link {{ 'active' if active_page == 'add_purchase' else 'text-dark' }}">
+                            <i class="bi bi-plus-circle me-2"></i> Add Purchase
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('purchase.list_purchases') }}"
+                            class="nav-link {{ 'active' if active_page == 'list_purchases' else 'text-dark' }}">
+                            <i class="bi bi-list-ul me-2"></i> List Purchases
+                        </a>
+                    </li>
+
+                    {# --- Sales Section --- #}
+                    <li class="nav-item mt-2"><span class="nav-link disabled">SALES</span></li>
+                    <li>
+                        <a href="{{ url_for('sales.add_sale') }}"
+                            class="nav-link {{ 'active' if active_page == 'add_sale' else 'text-dark' }}">
+                            <i class="bi bi-dash-circle me-2"></i> Add Sale
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('sales.list_sales') }}"
+                            class="nav-link {{ 'active' if active_page == 'list_sales' else 'text-dark' }}">
+                            <i class="bi bi-list-ul me-2"></i> List Sales
+                        </a>
+                    </li>
+
+                    {# --- Management Section --- #}
+                    <li class="nav-item mt-2"><span class="nav-link disabled">MANAGEMENT</span></li>
+                    <li>
+                        <a href="{{ url_for('parties.list_parties') }}"
+                            class="nav-link {{ 'active' if active_page == 'parties' else 'text-dark' }}">
+                            <i class="bi bi-people me-2"></i> Parties
+                        </a>
+                    </li>
+                    <li>
+                        {# Assuming payments list route exists #}
+                        <a href="{{ url_for('payments.list_payments') }}"
+                            class="nav-link {{ 'active' if active_page == 'payments' or active_page == 'add_payment' else 'text-dark' }}">
+                            <i class="bi bi-cash-coin me-2"></i> Payments
+                        </a>
+                    </li>
+                    <li> {# Added Expenses Link #}
+                        <a href="{{ url_for('expense.list_expenses') }}"
+                            class="nav-link {{ 'active' if active_page == 'expenses' or active_page == 'add_expense' else 'text-dark' }}">
+                            <i class="bi bi-wallet2 me-2"></i> Expenses
+                        </a>
+                    </li>
+                    <li>
+                        {# Assuming reports form route exists #}
+                        <a href="{{ url_for('reports.report_form') }}"
+                            class="nav-link {{ 'active' if active_page == 'reports' else 'text-dark' }}">
+                            <i class="bi bi-bar-chart-line me-2"></i> Reports
+                        </a>
+                    </li>
+                </ul>
+            </div> {# End scrollable div #}
+
+            <hr>
+            <div class="dropdown mt-auto"> {# mt-auto keeps it at the bottom after the scrollable div #}
+                <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
+                    id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="https://via.placeholder.com/32" alt="User" width="32" height="32"
+                        class="rounded-circle me-2">
+                    <strong>{{ session.get('user_name', 'User') }}</strong>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="{{ url_for('login_bp.logout') }}">Sign out</a></li>
+                </ul>
+            </div>
+        </aside>
+        {# --- === END FULL Sidebar Section === --- #}
+
+        {# --- Main Content Area (Desktop) --- #}
+        <div class="content flex-grow-1" style="height: 100vh; overflow-y: auto;">
+             {# --- === FULL Top Navbar === --- #}
+             <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top mb-4">
+                  <div class="container-fluid">
+                     <span class="navbar-brand fw-bold d-none d-md-block">Add New Sale Bill</span>
+                     <ul class="navbar-nav ms-auto d-flex flex-row align-items-center">
+                          <li class="nav-item dropdown me-3"> {# Notifications #}
+                              <a class="nav-link" href="#" id="navbarDropdownNotifications" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                  <i class="bi bi-bell fs-5"></i>
+                                  <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle" style="font-size: 0.6em;">3</span> {# Example Badge #}
+                              </a>
+                              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownNotifications">
+                                  <li><a class="dropdown-item" href="#">New Payment Received</a></li>
+                                  <li><a class="dropdown-item" href="#">Report Ready: March</a></li>
+                                  <li><hr class="dropdown-divider"></li>
+                                  <li><a class="dropdown-item" href="#">View All Notifications</a></li>
+                              </ul>
+                          </li>
+                          <li class="nav-item d-flex align-items-center"> {# User #}
+                              <img src="https://via.placeholder.com/32" alt="User" width="32" height="32" class="rounded-circle me-2 d-none d-lg-block">
+                              <span class="d-none d-lg-block">{{ session.get('user_name', 'User') }}</span>
+                          </li>
+                    </ul>
+                 </div>
+            </nav>
+            {# --- === END FULL Top Navbar === --- #}
+
+            {# --- Add Sale Form (Desktop) --- #}
+            <div class="container-fluid px-4">
+                 {# --- Flash Messages --- #}
+                 {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                         {% for category, message in messages %}
+                         <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+                             {{ message | safe }}
+                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                         </div>
+                         {% endfor %}
+                     {% endif %}
+                 {% endwith %}
+
+                <div class="card shadow-sm rounded-4 add-form-card">
+                    <div class="card-body p-4 p-md-5">
+                         <h2 class="card-title fw-bold mb-4">Record New Sale Bill</h2>
+                        <form action="{{ url_for('sales.add_sale') }}" method="POST" id="saleForm" novalidate>
+
+                            {# === Bill Header Details === #}
+                            <fieldset class="mb-4">
+                                <legend class="form-section-legend">Sale Details</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="transactionDate" class="form-label">Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="transactionDate" name="transaction_date" required value="{{ form_data.get('transaction_date', '') if form_data else '' }}">
+                                    </div>
+                                    <div class="col-md-5 mb-3">
+                                        <label for="partyId" class="form-label">Party (Customer/Buyer) <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="partyId" name="party_id" required>
+                                            <option value="" disabled selected>-- Select Party --</option>
+                                            {# IMPORTANT: Requires PartyType enum passed from route as 'PartyType' #}
+                                            {% for party in parties %}
+                                            <option value="{{ party.id }}" {{ 'selected' if form_data and form_data.get('party_id') == party.id|string }}>
+                                                 {{ party.name }} <span class="party-option-type">({{ 'Seller' if party.party_type == PartyType.Supplier else 'Customer' }})</span>
+                                             </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                     <div class="col-md-3 mb-3">
+                                        <label for="billNumber" class="form-label">Bill Number</label>
+                                        <input type="text" class="form-control" id="billNumber" name="bill_number" value="{{ form_data.get('bill_number', '') if form_data else '' }}" placeholder="Optional">
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            {# === Item Entry Table === #}
+                            <fieldset class="mb-4">
+                                 <legend class="form-section-legend">Sold Items</legend>
+                                 <div class="table-responsive">
+                                     <table class="table table-bordered item-table table-sm align-middle">
+                                         <thead class="table-light">
+                                             <tr>
+                                                 <th scope="col" style="width: 25%;">Item <span class="text-danger">*</span></th>
+                                                 <th scope="col" class="text-center">Live Count <span class="text-danger">*</span></th>
+                                                 <th scope="col" class="text-center">Avg Wt(kg)</th>
+                                                 <th scope="col" class="text-center">Total Wt(kg)</th>
+                                                 <th scope="col" class="text-end">Rate (₹/kg) <span class="text-danger">*</span></th>
+                                                 <th scope="col" class="text-end">Amount (₹)</th>
+                                                 <th scope="col" class="text-center">Action</th>
+                                             </tr>
+                                         </thead>
+                                         <tbody id="itemSalesRowsContainer">
+                                             {# Initial Row #}
+                                             <tr>
+                                                 <td><select class="form-select form-select-sm item-select" name="item_id[]" required><option value="" disabled selected>-- Select --</option>{% for i in items %}<option value="{{ i.id }}">{{ i.name }}</option>{% endfor %}</select></td>
+                                                 <td><input type="number" class="form-control form-control-sm quantity-input text-center" name="quantity[]" min="1" step="1" required></td>
+                                                 <td><input type="number" step="any" class="form-control form-control-sm average-weight-input text-center" name="average_weight[]" min="0" placeholder="Enter Avg Wt"></td>
+                                                 <td><input type="number" step="any" class="form-control form-control-sm total-weight-input text-center" name="total_weight[]" min="0" placeholder="Enter Total Wt"></td>
+                                                 <td><input type="number" step="any" class="form-control form-control-sm rate-input text-end" name="rate_per_kg[]" min="0.01" required></td>
+                                                 <td class="text-end amount-display">0.00</td>
+                                                 <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-item" onclick="removeItemRow(this)"><i class="bi bi-trash"></i></button></td>
+                                             </tr>
+                                         </tbody>
+                                         <tfoot>
+                                              <tr>
+                                                 <td colspan="5" class="text-end border-0 py-2"><button type="button" class="btn btn-sm btn-success" onclick="addSalesItemRow()"><i class="bi bi-plus-circle me-1"></i> Add Item</button></td>
+                                                 <th class="text-end align-middle">Grand Total:</th>
+                                                 <td class="text-end fw-bold fs-5 align-middle" id="grandTotalSales">₹ 0.00</td>
+                                             </tr>
+                                         </tfoot>
+                                     </table>
+                                 </div>
+                            </fieldset>
+
+                            {# === Notes === #}
+                            <fieldset>
+                                <legend class="form-section-legend">Remarks</legend>
+                                <div class="col-12 mb-3"><label for="notes" class="form-label visually-hidden">Notes</label><textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional notes or remarks about this sale">{{ form_data.get('notes', '') if form_data else '' }}</textarea></div>
+                            </fieldset>
+
+                            {# === Action Buttons === #}
+                            <div class="d-flex justify-content-end gap-2 mt-4">
+                                <a href="{{ url_for('sales.list_sales') }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg me-1"></i> Cancel</a>
+                                <button type="submit" class="btn btn-theme-primary px-4"><i class="bi bi-check-lg me-1"></i> Save Sale Bill</button>
+                            </div>
+                        </form>
+                    </div> {# End card-body #}
+                </div> {# End card #}
+            </div> {# End .container-fluid #}
+        </div> {# End .content #}
+    </div> {# End .wrapper (Desktop) #}
+
+
+    {# --- Mobile View --- #}
+    <div class="d-md-none">
+         {# --- Mobile Top Navbar --- #}
+         <nav class="navbar navbar-light bg-theme-primary sticky-top shadow-sm">
+             <div class="container-fluid">
+                 <span class="navbar-brand text-white fw-bold"><i class="bi bi-dash-circle-fill me-1"></i> Add Sale</span>
+                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar"><i class="bi bi-list fs-4 text-white"></i></button>
+             </div>
+         </nav>
+
+        {# --- === FULL Mobile Offcanvas Menu === --- #}
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header border-bottom">
+                 <h5 class="offcanvas-title fw-bold" id="offcanvasNavbarLabel"><i class="bi bi-box-seam me-2 text-theme-primary"></i> Anwari Ent. Menu</h5>
+                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+             </div>
+            <div class="offcanvas-body">
+                 {# Ensure active_page='add_sale' is passed #}
+                 <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                     <li class="nav-item"><a class="nav-link {{ 'active' if active_page == 'dashboard' else '' }}" href="{{ url_for('home') }}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+                     <li class="nav-item mt-2"><span class="nav-link disabled">PURCHASE</span></li>
+                     <li class="nav-item"><a class="nav-link {{ 'active' if active_page == 'add_purchase' else '' }}" href="{{ url_for('purchase.add_purchase') }}"><i class="bi bi-plus-circle me-2"></i> Add Purchase</a></li>
+                     <li class="nav-item"><a class="nav-link {{ 'active' if active_page == 'list_purchases' else '' }}" href="{{ url_for('purchase.list_purchases') }}"><i class="bi bi-list-ul me-2"></i> List Purchases</a></li>
+                     <li class="nav-item mt-2"><span class="nav-link disabled">SALES</span></li>
+                     <li class="nav-item"><a class="nav-link {{ 'active' if active_page == 'add_sale' else '' }}" href="{{ url_for('sales.add_sale') }}"><i class="bi bi-dash-circle me-2"></i> Add Sale</a></li>
+                     <li class="nav-item"><a class="nav-link {{ 'active' if active_page == 'list_sales' else '' }}" href="{{ url_for('sales.list_sales') }}"><i class="bi bi-list-ul me-2"></i> List Sales</a></li>
+                     <li class="nav-item mt-2"><span class="nav-link disabled">MANAGEMENT</span></li>
+                     <li class="nav-item"><a class="nav-link {{ 'active' if active_page == 'parties' else '' }}" href="{{ url_for('parties.list_parties') }}"><i class="bi bi-people me-2"></i> Parties</a></li>
+                     <li class="nav-item"><a class="nav-link {{ 'active' if active_page == 'payments' else '' }}" href="{{ url_for('payments.list_payments') }}"><i class="bi bi-cash-coin me-2"></i> Payments</a></li>
+                     <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-bar-chart-line me-2"></i> Reports</a></li>
+                     <li class="nav-item dropdown mt-3 pt-3 border-top"> {# User Dropdown #}
+                         <a class="nav-link dropdown-toggle" href="#" id="offcanvasNavbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-person-circle me-2"></i> {{ session.get('user_name', 'User') }}</a>
+                         <ul class="dropdown-menu" aria-labelledby="offcanvasNavbarDropdown">
+                             <li><a class="dropdown-item" href="#">Settings</a></li><li><a class="dropdown-item" href="#">Profile</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="{{ url_for('login_bp.logout') }}">Sign out</a></li>
+                         </ul>
+                     </li>
+                 </ul>
+             </div>
+        </div>
+        {# --- === END FULL Mobile Offcanvas Menu === --- #}
+
+
+        {# --- Add Sale Form (Mobile) --- #}
+         <main class="container-fluid py-3 content content-area-mobile">
+             {# --- Flash Messages --- #}
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                      {% for category, message in messages %}
+                          <div class="alert alert-{{ category }} alert-dismissible fade show mb-3" role="alert">
+                              {{ message | safe }} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                      {% endfor %}
+                  {% endif %}
+              {% endwith %}
+
+            <div class="card shadow-sm rounded-3 add-form-card">
+                 <div class="card-body p-3">
+                    <h5 class="card-title fw-bold mb-4 text-center">Record New Sale</h5>
+                    <form action="{{ url_for('sales.add_sale') }}" method="POST" id="saleFormMobile" novalidate>
+                        {# Sale Details #}
+                        <div class="mb-3"><label for="transactionDateMobile" class="form-label small">Date <span class="text-danger">*</span></label><input type="date" class="form-control form-control-sm" id="transactionDateMobile" name="transaction_date" required></div>
+                        <div class="mb-3"><label for="partyIdMobile" class="form-label small">Party <span class="text-danger">*</span></label><select class="form-select form-select-sm" id="partyIdMobile" name="party_id" required><option value="" disabled selected>-- Select Party --</option>{% for party in parties %}<option value="{{ party.id }}">{{ party.name }} <span class="party-option-type">({{ 'Seller' if party.party_type == PartyType.Supplier else 'Customer' }})</span></option>{% endfor %}</select></div>
+                        <div class="mb-3"><label for="billNumberMobile" class="form-label small">Bill Number</label><input type="text" class="form-control form-control-sm" id="billNumberMobile" name="bill_number"></div>
+
+                        {# Item Details Table (Mobile) #}
+                        <h6 class="text-muted border-top pt-3 mt-4 mb-3">Sold Items</h6>
+                         <div class="table-responsive mb-2">
+                             <table class="table table-bordered item-table table-sm align-middle">
+                                 <thead class="table-light">
+                                      <tr>
+                                         <th>Item*</th>
+                                         <th class="text-center">Qty*</th>
+                                         <th class="text-center">Avg Wt</th>
+                                         <th class="text-center">Total Wt</th> {/* ADDED */}
+                                         <th class="text-end">Rate/kg*</th>
+                                         <th class="text-end">Amt</th>
+                                         <th></th> {# Action #}
+                                     </tr>
+                                 </thead>
+                                 <tbody id="itemSalesRowsContainerMobile">
+                                     {# Initial Row #}
+                                     <tr>
+                                          <td><select class="form-select form-select-sm item-select" name="item_id[]" required><option value="" disabled selected>--Item--</option>{% for item in items %}<option value="{{ item.id }}">{{ item.name }}</option>{% endfor %}</select></td>
+                                          <td><input type="number" class="form-control form-control-sm quantity-input text-center" name="quantity[]" min="1" step="1" required></td>
+                                          <td><input type="number" step="any" class="form-control form-control-sm average-weight-input text-center" name="average_weight[]" min="0" placeholder="Avg"></td>
+                                          <td><input type="number" step="any" class="form-control form-control-sm total-weight-input text-center" name="total_weight[]" min="0" placeholder="Total"></td> {/* ADDED */}
+                                          <td><input type="number" step="any" class="form-control form-control-sm rate-input text-end" name="rate_per_kg[]" min="0.01" required></td>
+                                          <td class="text-end amount-display small">0.00</td>
+                                          <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-item py-0 px-1" onclick="removeItemRow(this)"><i class="bi bi-trash"></i></button></td>
+                                     </tr>
+                                 </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-success w-100 mb-3" onclick="addSalesItemRowMobile()"><i class="bi bi-plus-circle me-1"></i> Add Item</button>
+                        <div class="d-flex justify-content-end align-items-center border-top pt-2">
+                             <span class="fw-bold me-2">Grand Total:</span>
+                             <span class="fw-bold fs-5" id="grandTotalSalesMobile">₹ 0.00</span>
+                        </div>
+
+
+                         {# Remarks #}
+                         <h6 class="text-muted border-top pt-3 mt-4 mb-3">Remarks</h6>
+                         <div class="mb-3"><label for="notesMobile" class="form-label visually-hidden">Notes</label><textarea class="form-control form-control-sm" id="notesMobile" name="notes" rows="2"></textarea></div>
+
+                        {# Action Buttons #}
+                        <div class="d-grid gap-2 mt-4">
+                             <button type="submit" class="btn btn-theme-primary btn-sm">Save Sale Bill</button>
+                             <a href="{{ url_for('sales.list_sales') }}" class="btn btn-outline-secondary btn-sm">Cancel</a>
+                         </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+         {# --- === FULL Mobile Bottom Nav === --- #}
+         <footer class="fixed-bottom d-md-none mobile-bottom-nav p-2">
+             <nav class="nav nav-pills nav-fill">
+                 <a class="nav-link" href="{{ url_for('home') }}"> <i class="bi bi-house-door-fill"></i> Home </a>
+                 <a class="nav-link" href="{{ url_for('purchase.add_purchase') }}"> <i class="bi bi-plus-circle-fill"></i> Purchase </a>
+                 <a class="nav-link active" aria-current="page" href="{{ url_for('sales.add_sale') }}"> <i class="bi bi-dash-circle-fill"></i> Sale </a>
+                 <a class="nav-link" href="#"> <i class="bi bi-bar-chart-line-fill"></i> Reports </a>
+                 <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"> <i class="bi bi-list"></i> Menu </a>
+             </nav>
+         </footer>
+         {# --- === END FULL Mobile Bottom Nav === --- #}
+    </div> {# End .d-md-none (Mobile) #}
+
+    {# --- Row Templates --- #}
+    <template id="salesItemRowTemplate">
+         <tr>
+             <td><select class="form-select form-select-sm item-select" name="item_id[]" required><option value="" disabled selected>-- Select Item --</option>{% for item in items %} <option value="{{ item.id }}">{{ item.name }}</option> {% endfor %}</select></td>
+             <td><input type="number" class="form-control form-control-sm quantity-input text-center" name="quantity[]" min="1" step="1" required></td>
+             <td><input type="number" step="any" class="form-control form-control-sm average-weight-input text-center" name="average_weight[]" min="0" placeholder="Enter Avg Wt"></td>
+             <td><input type="number" step="any" class="form-control form-control-sm total-weight-input text-center" name="total_weight[]" min="0" placeholder="Enter Total Wt"></td> {/* ADDED */}
+             <td><input type="number" step="any" class="form-control form-control-sm rate-input text-end" name="rate_per_kg[]" min="0.01" required></td>
+             <td class="text-end amount-display">0.00</td>
+             <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-item" onclick="removeItemRow(this)"><i class="bi bi-trash"></i></button></td>
+         </tr>
+    </template>
+     <template id="salesItemRowTemplateMobile">
+         <tr>
+             <td><select class="form-select form-select-sm item-select" name="item_id[]" required><option value="" disabled selected>--Item--</option>{% for item in items %} <option value="{{ item.id }}">{{ item.name }}</option> {% endfor %}</select></td>
+             <td><input type="number" class="form-control form-control-sm quantity-input text-center" name="quantity[]" min="1" step="1" required></td>
+             <td><input type="number" step="any" class="form-control form-control-sm average-weight-input text-center" name="average_weight[]" min="0" placeholder="Avg"></td>
+             <td><input type="number" step="any" class="form-control form-control-sm total-weight-input text-center" name="total_weight[]" min="0" placeholder="Total"></td> {/* ADDED */}
+             <td><input type="number" step="any" class="form-control form-control-sm rate-input text-end" name="rate_per_kg[]" min="0.01" required></td>
+             <td class="text-end amount-display small">0.00</td>
+             <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-item py-0 px-1" onclick="removeItemRow(this)"><i class="bi bi-trash"></i></button></td>
+         </tr>
+    </template>
+
+
+    {# --- Scripts --- #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script> (function () { 'use strict'; /* Bootstrap validation */ var forms=document.querySelectorAll('form[novalidate]');Array.prototype.slice.call(forms).forEach(function(f){f.addEventListener('submit',function(e){if(!f.checkValidity()){e.preventDefault();e.stopPropagation();}f.classList.add('was-validated');},!1);}); })(); </script>
+
+    {# --- JavaScript for Dynamic Rows & Calculations (UPDATED) --- #}
+    <script>
+        // --- Get references (Desktop & Mobile) ---
+        const itemSalesTableBody = document.getElementById('itemSalesRowsContainer');
+        const salesRowTemplate = document.getElementById('salesItemRowTemplate');
+        const grandTotalSalesDisplay = document.getElementById('grandTotalSales');
+        const itemSalesTableBodyMobile = document.getElementById('itemSalesRowsContainerMobile');
+        const salesRowTemplateMobile = document.getElementById('salesItemRowTemplateMobile');
+        const grandTotalSalesDisplayMobile = document.getElementById('grandTotalSalesMobile');
+
+        function formatCurrency(value) {
+             const number = parseFloat(value) || 0;
+             // Use 'en-IN' for Indian Rupee formatting
+             return `₹ ${number.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+         }
+
+        // --- Unified Calculation Function ---
+        function updateSalesRowCalculations(row, changedInput) {
+            const qtyInput = row.querySelector('.quantity-input');
+            const avgWtInput = row.querySelector('.average-weight-input');
+            const totalWtInput = row.querySelector('.total-weight-input');
+            const rateInput = row.querySelector('.rate-input');
+            const amountDisplay = row.querySelector('.amount-display');
+
+            if (!qtyInput || !avgWtInput || !totalWtInput || !rateInput || !amountDisplay) return; // Exit if elements missing
+
+            let qty = parseInt(qtyInput.value) || 0;
+            let avgWt = parseFloat(avgWtInput.value) || 0;
+            let totalWt = parseFloat(totalWtInput.value) || 0;
+            let rate = parseFloat(rateInput.value) || 0;
+            let amount = 0;
+
+            const isQtyChanged = changedInput.classList.contains('quantity-input');
+            const isAvgWtChanged = changedInput.classList.contains('average-weight-input');
+            const isTotalWtChanged = changedInput.classList.contains('total-weight-input');
+
+            if (qty > 0) {
+                 if (isQtyChanged || isAvgWtChanged) {
+                    // If Qty or Avg Wt changed, calculate Total Wt
+                    totalWt = qty * avgWt;
+                    totalWtInput.value = totalWt.toFixed(2); // Update Total Wt input
+                 } else if (isTotalWtChanged) {
+                    // If Total Wt changed, calculate Avg Wt
+                     avgWt = totalWt / qty;
+                     avgWtInput.value = avgWt.toFixed(2); // Update Avg Wt input
+                 }
+                 // Always calculate amount based on final totalWt and rate
+                 amount = totalWt * rate;
+            } else {
+                // If qty is 0, reset calculated weights and amount
+                 totalWtInput.value = ''; // Clear total weight
+                 avgWtInput.value = ''; // Clear average weight
+                 amount = 0;
+            }
+
+            amountDisplay.textContent = amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            updateSalesGrandTotal();
+        }
+
+        function updateSalesGrandTotal() {
+             let total = 0;
+             const desktopRows = itemSalesTableBody ? itemSalesTableBody.querySelectorAll('tr') : [];
+             const mobileRows = itemSalesTableBodyMobile ? itemSalesTableBodyMobile.querySelectorAll('tr') : [];
+             const rowsToCalculate = desktopRows.length > 0 ? desktopRows : mobileRows;
+
+             rowsToCalculate.forEach(row => {
+                 const amountDisplay = row.querySelector('.amount-display');
+                  // Read directly from the displayed amount cell
+                  const amountText = amountDisplay ? amountDisplay.textContent.replace(/₹|,/g, '') : '0';
+                 total += parseFloat(amountText) || 0;
+             });
+
+             if(grandTotalSalesDisplay) grandTotalSalesDisplay.textContent = formatCurrency(total);
+             if(grandTotalSalesDisplayMobile) grandTotalSalesDisplayMobile.textContent = formatCurrency(total);
+        }
+
+        // Adds event listeners for calculation to a sales row
+        function addSalesEventListenersToRow(row) {
+             const quantityInput = row.querySelector('.quantity-input');
+             const avgWeightInput = row.querySelector('.average-weight-input');
+             const totalWeightInput = row.querySelector('.total-weight-input');
+             const rateInput = row.querySelector('.rate-input');
+
+             // Pass the triggering element (target) to the handler
+             if(quantityInput) quantityInput.addEventListener('input', (e) => updateSalesRowCalculations(row, e.target));
+             if(avgWeightInput) avgWeightInput.addEventListener('input', (e) => updateSalesRowCalculations(row, e.target));
+             if(totalWeightInput) totalWeightInput.addEventListener('input', (e) => updateSalesRowCalculations(row, e.target));
+             if(rateInput) rateInput.addEventListener('input', (e) => updateSalesRowCalculations(row, e.target)); // Rate also triggers amount update
+        }
+
+         // Adds a new row to the desktop sales table
+         function addSalesItemRow() {
+             if (!salesRowTemplate || !itemSalesTableBody) return;
+            const newRowContent = salesRowTemplate.content.cloneNode(true);
+            const newRowElement = newRowContent.querySelector('tr');
+             if(!newRowElement) return;
+            addSalesEventListenersToRow(newRowElement);
+            itemSalesTableBody.appendChild(newRowContent);
+            // Don't update total immediately, wait for input
+        }
+
+          // Adds a new row to the mobile sales table
+          function addSalesItemRowMobile() {
+             if (!salesRowTemplateMobile || !itemSalesTableBodyMobile) return;
+            const newRowContent = salesRowTemplateMobile.content.cloneNode(true);
+            const newRowElement = newRowContent.querySelector('tr');
+             if(!newRowElement) return;
+            addSalesEventListenersToRow(newRowElement);
+            itemSalesTableBodyMobile.appendChild(newRowContent);
+             // Don't update total immediately, wait for input
+         }
+
+        // Removes the table row containing the clicked button
+        function removeItemRow(button) {
+            const row = button.closest('tr');
+            if (!row) return;
+            row.remove(); // Allow removing any row
+            updateSalesGrandTotal(); // Recalculate total after removal
+        }
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if(itemSalesTableBody) itemSalesTableBody.querySelectorAll('tr').forEach(addSalesEventListenersToRow);
+            if(itemSalesTableBodyMobile) itemSalesTableBodyMobile.querySelectorAll('tr').forEach(addSalesEventListenersToRow);
+            updateSalesGrandTotal(); // Calculate initial total (likely zero)
+        });
+
+    </script>
+
+</body>
+</html>

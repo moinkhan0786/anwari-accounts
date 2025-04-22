@@ -1,0 +1,311 @@
+:root {
+    --primary-color: #84283e;
+    --secondary-color: #ffffff;
+    --text-color-dark: #333;
+    --text-color-light: #f8f9fa;
+    --input-border-color: #ced4da;
+    --input-focus-border-color: #a34e61; /* Lighter shade of primary */
+    --link-color: #6c757d;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color-darker: rgba(0, 0, 0, 0.15);
+    --overlay-color: rgba(0, 0, 0, 0.5); /* Dark overlay for background */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color-dark);
+    background-color: #f4f7f6; /* Fallback background */
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+.login-container {
+    position: relative;
+    min-height: 100vh;
+    background-image: url('background.jpg'); /* REPLACE with your background image */
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Background Overlay */
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--overlay-color);
+    backdrop-filter: blur(4px); /* Blur effect */
+    z-index: 1;
+}
+
+/* Ensure content is above overlay */
+.container-fluid {
+    position: relative;
+    z-index: 2;
+}
+
+/* Login Card Styling (Mobile First) */
+.login-card {
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white card on mobile */
+    padding: 2rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px var(--shadow-color);
+    width: 100%;
+    max-width: 420px; /* Max width on mobile */
+    margin: 1rem; /* Add some margin on very small screens */
+    animation-duration: 0.8s; /* Animate.css duration */
+}
+
+.logo {
+    max-width: 180px;
+    height: auto;
+    margin-bottom: 1rem; /* Adjusted margin */
+}
+
+.form-title {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--text-color-dark);
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid var(--input-border-color);
+    padding: 0.75rem 1rem;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: var(--input-focus-border-color);
+    box-shadow: 0 0 0 0.2rem rgba(132, 40, 62, 0.25); /* Focus ring using primary color */
+}
+
+.form-check-input {
+    border-radius: 4px;
+    border-color: var(--input-border-color);
+}
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.form-check-input:focus {
+     box-shadow: 0 0 0 0.2rem rgba(132, 40, 62, 0.25);
+}
+
+.form-check-label {
+    font-size: 0.9rem;
+    color: var(--link-color);
+}
+
+.forgot-password-link {
+    font-size: 0.9rem;
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.forgot-password-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.btn-login {
+    background-color: var(--primary-color);
+    border: none;
+    color: var(--secondary-color);
+    padding: 0.8rem 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(132, 40, 62, 0.3);
+    animation: pulse 2s infinite ease-in-out; /* Subtle pulse animation */
+}
+
+.btn-login:hover {
+    transform: scale(1.03); /* Slightly enlarge */
+    background-color: #6a1f31; /* Darker shade on hover */
+    box-shadow: 0 6px 15px rgba(132, 40, 62, 0.4);
+    animation-play-state: paused; /* Pause pulse on hover */
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 10px rgba(132, 40, 62, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+     box-shadow: 0 6px 15px rgba(132, 40, 62, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 10px rgba(132, 40, 62, 0.3);
+  }
+}
+
+
+/* Social Login Styles */
+.social-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--link-color);
+    font-size: 0.9rem;
+}
+
+.social-divider::before,
+.social-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.social-divider::before {
+    margin-right: .5em;
+}
+
+.social-divider::after {
+    margin-left: .5em;
+}
+
+.btn-social {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--secondary-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: none;
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+.btn-social:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color-darker);
+     color: var(--secondary-color);
+}
+
+.btn-google {
+    background-color: #DB4437;
+}
+.btn-facebook {
+    background-color: #4267B2;
+}
+
+
+/* Desktop Styles (>= 992px) - Split Screen */
+@media (min-width: 992px) {
+    .login-container {
+        /* Remove background image from main container on desktop if using split */
+         background-image: none;
+         background-color: var(--primary-color); /* White background behind visual side */
+    }
+     .login-container::before {
+         /* Remove overlay/blur on desktop */
+        background-color: transparent;
+        backdrop-filter: none;
+    }
+
+    .visual-side {
+        background-color: var(--secondary-color); /* Or could be an image */
+         /* Optional: Add specific background image for left side */
+        /* background-image: url('path/to/your/desktop-visual.jpg'); */
+        background-size: cover;
+        background-position: center;
+        height: 100vh; /* Full height */
+    }
+
+     /* Adjust form side background and text colors */
+    .col-lg-6.d-flex {
+         background-color: var(--primary-color); /* Primary color background for form side */
+         height: 100vh; /* Full height */
+    }
+
+    .login-card {
+        background-color: var(--primary-color); /* Match parent background */
+        box-shadow: none; /* Remove shadow as it's part of the block */
+        padding: 3rem; /* More padding on desktop */
+        max-width: 450px;
+        width: 100%;
+        margin: 0; /* Remove margin */
+        animation-name: animate__fadeInRight; /* Different entrance animation */
+         animation-duration: 0.8s;
+    }
+
+    /* Adjust text/element colors for dark background */
+    .login-card .form-title,
+    .login-card .form-label {
+        color: var(--text-color-light);
+    }
+
+    .login-card .form-control {
+        background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent input */
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: var(--text-color-light);
+    }
+    .login-card .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+     .login-card .form-control:focus {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+        color: var(--text-color-light);
+    }
+
+    .login-card .form-check-label,
+    .login-card .forgot-password-link {
+        color: rgba(255, 255, 255, 0.8);
+    }
+     .login-card .forgot-password-link:hover {
+        color: var(--secondary-color);
+    }
+
+    .login-card .form-check-input {
+       background-color: transparent;
+       border-color: rgba(255, 255, 255, 0.5);
+    }
+    .login-card .form-check-input:checked {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+    }
+     .login-card .form-check-input:focus {
+         box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+    }
+
+
+     .login-card .btn-login {
+        background-color: var(--secondary-color); /* White button */
+        color: var(--primary-color); /* Primary text color */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        animation: none; /* Disable pulse by default on desktop maybe? Or keep it */
+    }
+     .login-card .btn-login:hover {
+        background-color: #f0f0f0; /* Slightly off-white hover */
+         transform: scale(1.03);
+         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+
+     .login-card .social-divider {
+         color: rgba(255, 255, 255, 0.7);
+     }
+     .login-card .social-divider::before,
+     .login-card .social-divider::after {
+         border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+     }
+
+
+}

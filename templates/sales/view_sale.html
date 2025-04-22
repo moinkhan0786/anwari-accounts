@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {# MODIFIED Title #}
+    <title>Sales Invoice - {{ bill.bill_number or bill.id }}</title>
+
+    {# --- CSS Includes --- #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {# Optional: Link main CSS for base styles #}
+    {# <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}"> #}
+
+    <style>
+        /* Base variables */
+        :root {
+            --theme-color: #84283e; /* Theme color */
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --header-bg: #f8f9fa; /* Light grey for table headers */
+            --body-bg-screen: #f4f7f6; /* Softer background for screen */
+        }
+
+        /* Base styles for screen */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--body-bg-screen);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .bill-container {
+            max-width: 21cm; /* A4 */
+            min-height: 28cm; /* Adjusted slightly */
+            margin: 2rem auto;
+            background-color: #ffffff;
+            padding: 1.5cm 1.2cm;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--theme-color); /* Accent border */
+            border-radius: 3px;
+            position: relative;
+        }
+
+        /* Header */
+        .bill-header h1 { color: var(--theme-color); font-weight: 700; font-size: 1.5rem; margin-bottom: 0.25rem; }
+        .bill-header p { margin-bottom: 0.1rem; font-size: 0.85rem; color: var(--text-muted); }
+        .bill-info p { margin-bottom: 0.25rem; font-size: 0.9rem; }
+        .bill-info strong { min-width: 80px; display: inline-block; }
+
+        /* Title */
+        .bill-title { font-size: 1.3rem; font-weight: 600; letter-spacing: 1px; text-align: center; color: var(--theme-color); margin: 1.5rem 0; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+
+        /* Details Sections */
+        .details-section { font-size: 0.9rem; margin-bottom: 2rem; padding: 1rem; border: 1px solid #e9ecef; border-radius: 5px; background-color: #fdfdfd; }
+        .details-section h6 { font-weight: 600; color: var(--theme-color); margin-bottom: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 0.4rem; }
+        .details-section p { margin-bottom: 0.3rem; line-height: 1.5; }
+        .details-section strong { color: var(--text-color); margin-right: 8px; }
+
+        /* Item Table */
+        .item-table { font-size: 0.9rem; margin-bottom: 0; }
+        .item-table thead th { background-color: var(--header-bg) !important; font-weight: 600; font-size: 0.85rem; border-bottom-width: 2px; border-color: var(--border-color) !important; color: #343a40; padding: 0.6rem 0.75rem; }
+        .item-table tbody td { padding: 0.6rem 0.75rem; vertical-align: top; border-color: #e9ecef !important; }
+        .item-table tbody tr:last-child td { border-bottom: 1px solid var(--border-color) !important; }
+        .item-table .item-description small { color: var(--text-muted); font-size: 0.8em; }
+
+        /* Totals Section */
+        .totals-section { font-size: 0.9rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-color); }
+        .totals-section .table { margin-bottom: 0; }
+        .totals-section .total-label { font-weight: 500; text-align: right; padding-right: 10px; color: var(--text-muted); }
+        .totals-section .total-value { font-weight: 500; }
+        .totals-section .grand-total td { font-weight: 700; font-size: 1.1rem; color: var(--theme-color); border-top: 2px solid var(--theme-color) !important; border-bottom: 2px solid var(--theme-color) !important; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+
+        /* Amount in Words */
+        .amount-in-words { font-size: 0.9rem; font-weight: 500; margin-top: 1.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); }
+        .amount-in-words strong { color: var(--text-muted); }
+
+        /* Footer */
+        .bill-footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-muted); }
+        .signature-area { margin-top: 2.5rem; padding-top: 0; text-align: center; font-size: 0.85rem; }
+        .signature-line { border-bottom: 1px solid #6c757d; width: 180px; margin: 0 auto; margin-bottom: 5px; height: 30px; }
+
+        /* Print-specific styles */
+        @media print {
+            body { background-color: #ffffff; font-size: 10pt; }
+            .bill-container { max-width: 100%; min-height: auto; margin: 0; padding: 0; box-shadow: none; border: none; border-top: none; }
+            .no-print { display: none !important; }
+            .bill-header h1 { font-size: 14pt; color: #000 !important; }
+            .bill-title { font-size: 12pt; color: #000 !important; border-bottom-color: #ccc !important; }
+            .details-section { border: 1px solid #eee !important; background-color: #fff !important; }
+            .details-section h6 { color: #000 !important; }
+            .item-table { font-size: 9pt; }
+            .item-table thead th { background-color: #eee !important; color: #000 !important; border-color: #ccc !important; }
+            .item-table td, .item-table th { border-color: #ccc !important; }
+            .totals-section, .amount-in-words, .bill-footer { font-size: 9pt; }
+            .totals-section .grand-total td { font-size: 10pt; color: #000 !important; border-color: #000 !important; }
+            .amount-in-words { border-top: 1px dashed #ccc !important; }
+            .bill-footer { border-top: 1px solid #ccc !important; }
+            .signature-line { border-bottom: 1px solid #333 !important; }
+            tr, td, th, div, p, section { page-break-inside: avoid; }
+            thead { display: table-header-group; }
+        }
+        @page { size: A4; margin: 1cm; }
+    </style>
+</head>
+
+<body>
+
+    <div class="container my-4 no-print">
+        <div class="d-flex justify-content-between align-items-center">
+            {# MODIFIED Back link #}
+            <a href="{{ url_for('sales.list_sales') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i> Back to Sales List
+            </a>
+            <div>
+                <button class="btn btn-sm btn-primary rounded-pill" onclick="window.print();">
+                     <i class="bi bi-printer me-1"></i> Print Invoice
+                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bill-container">
+        {# --- Bill Header --- #}
+        <header class="row bill-header mb-4 align-items-center">
+            <div class="col-md-7">
+                 {# Use your actual logo #}
+                 <img src="{{ url_for('static', filename='logo1.png') }}" alt="Anwari Enterprises Logo" style="max-height: 60px; max-width: 180px; margin-bottom: 1rem;" class="no-print">
+                <h1>Anwari Enterprises</h1>
+                <p>47, Maluka Street NH09 Hapur Bypass</p>
+                <p>Hapur, Uttar Pradesh, 245101 India</p>
+                <p>Contact: +91 11 6927 0510</p>
+            </div>
+            <div class="col-md-5 text-md-end mt-3 mt-md-0 bill-info">
+                 {# MODIFIED Title #}
+                 <h2 class="h4 mb-3" style="color: var(--text-muted);">TAX INVOICE</h2>
+                 {# Assuming 'bill' object contains relevant sales bill data #}
+                 <p><strong>Invoice No.:</strong> {{ bill.bill_number or bill.id }}</p>
+                 <p><strong>Date:</strong> {{ bill.transaction_date.strftime('%d %B, %Y') }}</p>
+            </div>
+        </header>
+
+        {# --- Party Details --- #}
+         <section class="row mb-4">
+             <div class="col-md-6 mb-3 mb-md-0">
+                  <div class="details-section h-100">
+                     {# MODIFIED Label #}
+                     <h6>Customer Details (Bill To):</h6>
+                     <p class="fw-bold mb-1">{{ bill.party.name }}</p>
+                     <p>{{ bill.party.address or 'Address not provided' }}</p>
+                     <p><strong>Contact:</strong> {{ bill.party.contact_info or '-' }}</p>
+                     <p><strong>GSTIN:</strong> {{ bill.party.gstin_number or '-' }}</p>
+                  </div>
+             </div>
+             <div class="col-md-6">
+                  <div class="details-section h-100">
+                      {# MODIFIED Label #}
+                     <h6>Seller Details (Bill From):</h6>
+                      <p class="fw-bold mb-1">Anwari Enterprises</p>
+                      <p>47, Maluka Street NH09 Hapur Bypass</p>
+                      <p>Hapur, Uttar Pradesh, 245101 India</p>
+                       <p><strong>Contact:</strong> +91 11 6927 0510</p>
+                      <p><strong>GSTIN:</strong> Your Company GSTIN (If applicable)</p>
+                  </div>
+             </div>
+         </section>
+
+        {# --- Item Table --- #}
+        <section class="item-section mb-4">
+             <table class="table item-table table-bordered table-sm align-middle">
+                  <thead class="table-light">
+                     <tr>
+                         <th scope="col" class="text-center" style="width: 5%;">#</th>
+                         <th scope="col" style="width: 30%;">Item Description</th>
+                         <th scope="col" class="text-center">Qty</th>
+                         <th scope="col" class="text-center">Total Wt(kg)</th>
+                         <th scope="col" class="text-end">Rate (₹/kg)</th> {# Assuming rate is per kg for sales calc #}
+                         <th scope="col" class="text-end">Amount (₹)</th>
+                     </tr>
+                 </thead>
+                  <tbody>
+                     {# Loop through items passed from the route (assuming bill.items) #}
+                     {% for item_detail in bill.items %}
+                      <tr>
+                          <td class="text-center">{{ loop.index }}</td>
+                          <td class="item-description">
+                              {{ item_detail.item.name }} {# Assumes item object is loaded #}
+                              {% if item_detail.tag_number %} <br><small>Tag: {{ item_detail.tag_number }}</small> {% endif %}
+                          </td>
+                          <td class="text-center">{{ item_detail.quantity }}</td> {# Live Count #}
+                          <td class="text-center">{{ "{:,.2f}".format(item_detail.weight) if item_detail.weight else '-' }}</td> {# Total Weight #}
+                          <td class="text-end">{{ "{:,.2f}".format(item_detail.rate) if item_detail.rate else '-'}}</td> {# Rate per Kg #}
+                          <td class="text-end">{{ "{:,.2f}".format(item_detail.total_amount) }}</td> {# Amount #}
+                      </tr>
+                     {% else %}
+                      <tr>
+                          <td colspan="6" class="text-center text-muted p-4">No items found in this invoice.</td>
+                      </tr>
+                     {% endfor %}
+                 </tbody>
+             </table>
+        </section>
+
+         {# --- Totals & Amount in Words --- #}
+         <section class="row mb-4">
+             <div class="col-md-6">
+                 <div class="amount-in-words h-100">
+                     <strong>Amount in Words:</strong><br>
+                     {{ bill.amount_in_words or '--- Calculation Pending ---' }} {# Variable from backend needed #}
+                 </div>
+             </div>
+             <div class="col-md-6">
+                  <div class="totals-section">
+                     <table class="table table-sm table-borderless">
+                         <tbody>
+                            <tr>
+                                <td class="total-label">Subtotal:</td>
+                                <td class="text-end total-value">₹ {{ "{:,.2f}".format(bill.grand_total) }}</td>
+                            </tr>
+                             {# Add Tax/Discount Rows Here If Needed #}
+                             <tr class="grand-total">
+                                <td class="total-label">GRAND TOTAL:</td>
+                                <td class="text-end">₹ {{ "{:,.2f}".format(bill.grand_total) }}</td>
+                             </tr>
+                        </tbody>
+                     </table>
+                  </div>
+             </div>
+         </section>
+
+
+         {# --- Footer & Signatures --- #}
+         <footer class="bill-footer row">
+              <div class="col-8">
+                 {% if bill.notes %}
+                     <p class="mb-2"><strong>Notes:</strong> {{ bill.notes }}</p>
+                 {% endif %}
+                 {# Add generated by if needed for sales #}
+                  {# <p class="mb-1"><strong>Generated By:</strong> {{ bill.generated_by or '-' }}</p> #}
+                  {# Optional Terms #}
+                  <p class="mt-3"><strong>Terms & Conditions:</strong> Payment due upon receipt. Goods once sold will not be taken back.</p>
+              </div>
+               <div class="col-4 text-center">
+                  <p class="mb-1">For Anwari Enterprises</p>
+                   <div class="signature-area">
+                       <div class="signature-line"></div>
+                       Authorised Signatory
+                   </div>
+               </div>
+         </footer>
+
+    </div> {# End bill-container #}
+
+</body>
+</html>

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Party - Anwari Enterprises</title>
+
+    {# --- CSS Includes --- #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+
+    {# --- CSS Styles --- #}
+    <style>
+        :root {
+            --primary-color: #84283e;
+            /* Extracted from login.css */
+            --bs-primary-rgb: 132, 40, 62;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .sidebar .nav-link.active i {
+            color: white !important;
+        }
+
+        @media (max-width: 767.98px) {
+            .content-area-mobile {
+                padding-bottom: 80px !important;
+            }
+        }
+
+        /* Styling for fieldset legends */
+        .form-section-legend {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .form-label {
+            font-weight: 500;
+            /* Slightly bolder labels */
+        }
+
+        /* Add some spacing below the card on mobile */
+        @media (max-width: 767.98px) {
+            .add-party-card {
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {# --- Desktop Wrapper --- #}
+    <div class="wrapper d-none d-md-flex">
+        {# --- Sidebar --- #}
+        <aside class="sidebar bg-white shadow-sm p-3 d-flex flex-column">
+            <a href="{{ url_for('home') }}"
+                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <i class="bi bi-box-seam fs-4 me-2 text-theme-primary"></i>
+                <span class="fs-5 fw-bold">Anwari Ent.</span>
+            </a>
+            <hr>
+
+            {# Add a wrapper div for scrollability #}
+            <div style="overflow-y: auto; flex-grow: 1; max-height: calc(100vh - 160px);"> {# Adjust max-height as
+                needed #}
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a href="{{ url_for('home') }}"
+                            class="nav-link {{ 'active' if active_page == 'dashboard' else 'text-dark' }}">
+                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                        </a>
+                    </li>
+
+                    {# --- Purchase Section --- #}
+                    <li class="nav-item mt-2"><span class="nav-link disabled">PURCHASE</span></li>
+                    <li>
+                        <a href="{{ url_for('purchase.add_purchase') }}"
+                            class="nav-link {{ 'active' if active_page == 'add_purchase' else 'text-dark' }}">
+                            <i class="bi bi-plus-circle me-2"></i> Add Purchase
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('purchase.list_purchases') }}"
+                            class="nav-link {{ 'active' if active_page == 'list_purchases' else 'text-dark' }}">
+                            <i class="bi bi-list-ul me-2"></i> List Purchases
+                        </a>
+                    </li>
+
+                    {# --- Sales Section --- #}
+                    <li class="nav-item mt-2"><span class="nav-link disabled">SALES</span></li>
+                    <li>
+                        <a href="{{ url_for('sales.add_sale') }}"
+                            class="nav-link {{ 'active' if active_page == 'add_sale' else 'text-dark' }}">
+                            <i class="bi bi-dash-circle me-2"></i> Add Sale
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('sales.list_sales') }}"
+                            class="nav-link {{ 'active' if active_page == 'list_sales' else 'text-dark' }}">
+                            <i class="bi bi-list-ul me-2"></i> List Sales
+                        </a>
+                    </li>
+
+                    {# --- Management Section --- #}
+                    <li class="nav-item mt-2"><span class="nav-link disabled">MANAGEMENT</span></li>
+                    <li>
+                        <a href="{{ url_for('parties.list_parties') }}"
+                            class="nav-link {{ 'active' if active_page == 'parties' else 'text-dark' }}">
+                            <i class="bi bi-people me-2"></i> Parties
+                        </a>
+                    </li>
+                    <li>
+                        {# Assuming payments list route exists #}
+                        <a href="{{ url_for('payments.list_payments') }}"
+                            class="nav-link {{ 'active' if active_page == 'payments' or active_page == 'add_payment' else 'text-dark' }}">
+                            <i class="bi bi-cash-coin me-2"></i> Payments
+                        </a>
+                    </li>
+                    <li> {# Added Expenses Link #}
+                        <a href="{{ url_for('expense.list_expenses') }}"
+                            class="nav-link {{ 'active' if active_page == 'expenses' or active_page == 'add_expense' else 'text-dark' }}">
+                            <i class="bi bi-wallet2 me-2"></i> Expenses
+                        </a>
+                    </li>
+                    <li>
+                        {# Assuming reports form route exists #}
+                        <a href="{{ url_for('reports.report_form') }}"
+                            class="nav-link {{ 'active' if active_page == 'reports' else 'text-dark' }}">
+                            <i class="bi bi-bar-chart-line me-2"></i> Reports
+                        </a>
+                    </li>
+                </ul>
+            </div> {# End scrollable div #}
+
+            <hr>
+            <div class="dropdown mt-auto"> {# mt-auto keeps it at the bottom after the scrollable div #}
+                <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
+                    id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="https://via.placeholder.com/32" alt="User" width="32" height="32"
+                        class="rounded-circle me-2">
+                    <strong>{{ session.get('user_name', 'User') }}</strong>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="{{ url_for('login_bp.logout') }}">Sign out</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        {# --- Main Content Area (Desktop) --- #}
+        <div class="content flex-grow-1" style="height: 100vh; overflow-y: auto;">
+            {# --- Top Navbar --- #}
+            <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top mb-4">
+                <div class="container-fluid">
+                    <span class="navbar-brand fw-bold d-none d-md-block">Add New Party</span>
+                    <ul class="navbar-nav ms-auto d-flex flex-row align-items-center">
+                        <li class="nav-item dropdown me-3">
+                            <a class="nav-link" href="#" id="navbarDropdownNotifications" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell fs-5"></i>
+                                <span
+                                    class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle"
+                                    style="font-size: 0.6em;">3</span> {# Example Badge #}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownNotifications">
+                                <li><a class="dropdown-item" href="#">New Payment Received</a></li>
+                                <li><a class="dropdown-item" href="#">Report Ready: March</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#">View All Notifications</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item d-flex align-items-center">
+                            <img src="https://via.placeholder.com/32" alt="User" width="32" height="32"
+                                class="rounded-circle me-2 d-none d-lg-block">
+                            <span class="d-none d-lg-block">{{ session.get('user_name', 'User') }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            {# --- Add Party Form (Desktop) --- #}
+            <div class="container-fluid px-4">
+                {# --- Flash Messages --- #}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+                    {{ message | safe }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <div class="card shadow-sm rounded-4 add-party-card">
+                    <div class="card-body p-4 p-md-5">
+                        <form action="{{ url_for('parties.add_party') }}" method="POST" novalidate>
+
+                            {# === Basic Information Section === #}
+                            <fieldset class="mb-4">
+                                <legend class="form-section-legend">Basic Information</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="partyName" class="form-label">Party Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="partyName" name="name"
+                                            value="{{ form_data.get('name', '') if form_data else '' }}" required
+                                            placeholder="Full name">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="partyType" class="form-label">Party Type <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-select" id="partyType" name="party_type" required>
+                                            <option value="" disabled {{ 'selected' if not (form_data and
+                                                form_data.get('party_type')) }}>-- Select Type --</option>
+                                            {# Loop through PartyType enum values ('Supplier', 'Customer') #}
+                                            {% for type_value in party_types %}
+                                            <option value="{{ type_value }}" {{ 'selected' if form_data and
+                                                form_data.get('party_type')==type_value }}>
+                                                {# Display 'Seller' or 'Customer' based on the internal value #}
+                                                {{ 'Seller' if type_value == 'Supplier' else 'Customer' }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            {# === Contact Information Section === #}
+                            <fieldset class="mb-4">
+                                <legend class="form-section-legend">Contact Information</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="contactInfo" class="form-label">Contact Info (Phone/Email)</label>
+                                        <input type="text" class="form-control" id="contactInfo" name="contact_info"
+                                            value="{{ form_data.get('contact_info', '') if form_data else '' }}"
+                                            placeholder="e.g., 9876543210">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="address" class="form-label">Address</label>
+                                        <textarea class="form-control" id="address" name="address" rows="1"
+                                            placeholder="Enter address">{{ form_data.get('address', '') if form_data else '' }}</textarea>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            {# === KYC & Bank Details Section === #}
+                            <fieldset class="mb-4">
+                                <legend class="form-section-legend">KYC & Bank Details (Optional)</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="panNumber" class="form-label">PAN Number</label>
+                                        <input type="text" class="form-control text-uppercase" id="panNumber"
+                                            name="pan_number"
+                                            value="{{ form_data.get('pan_number', '') if form_data else '' }}"
+                                            placeholder="ABCDE1234F" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                                            title="Enter valid PAN (e.g., ABCDE1234F)">
+                                        <div class="form-text">10-character Permanent Account Number.</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="gstinNumber" class="form-label">GSTIN</label>
+                                        <input type="text" class="form-control text-uppercase" id="gstinNumber"
+                                            name="gstin_number"
+                                            value="{{ form_data.get('gstin_number', '') if form_data else '' }}"
+                                            placeholder="15-digit GSTIN"
+                                            pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}"
+                                            title="Enter valid 15-digit GSTIN">
+                                        <div class="form-text">15-character Goods and Services Tax ID.</div>
+                                    </div>
+                                    {# --- BANK DETAILS --- #}
+                                    <div class="col-md-6 mb-3">
+                                        <label for="bankAccountName" class="form-label">Bank Account Name</label>
+                                        <input type="text" class="form-control" id="bankAccountName"
+                                            name="bank_account_name"
+                                            value="{{ form_data.get('bank_account_name', '') if form_data else '' }}"
+                                            placeholder="Name as per bank records">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="bankAccountNumber" class="form-label">Bank Account Number</label>
+                                        <input type="text" class="form-control" id="bankAccountNumber"
+                                            name="bank_account_number"
+                                            value="{{ form_data.get('bank_account_number', '') if form_data else '' }}"
+                                            placeholder="Enter account number">
+                                    </div>
+                                    <div class="col-md-6 mb-3"> {# Use full width or adjust grid as needed #}
+                                        <label for="bankIfscCode" class="form-label">Bank IFSC Code</label>
+                                        <input type="text" class="form-control text-uppercase" id="bankIfscCode"
+                                            name="bank_ifsc_code"
+                                            value="{{ form_data.get('bank_ifsc_code', '') if form_data else '' }}"
+                                            placeholder="ABCD0123456" pattern="[A-Z]{4}0[A-Z0-9]{6}"
+                                            title="Enter valid 11-character IFSC code">
+                                        <div class="form-text">11-character IFSC code.</div>
+                                    </div>
+                                    {# --- END BANK DETAILS --- #}
+                                </div>
+                            </fieldset>
+
+                            {# === Action Buttons === #}
+                            <div class="d-flex justify-content-end gap-2 mt-4">
+                                <a href="{{ url_for('parties.list_parties') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-lg me-1"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-theme-primary px-4">
+                                    <i class="bi bi-check-lg me-1"></i> Save Party
+                                </button>
+                            </div>
+                        </form>
+                    </div> {# End card-body #}
+                </div> {# End card #}
+            </div> {# End .container-fluid #}
+        </div> {# End .content #}
+    </div> {# End .wrapper (Desktop) #}
+
+
+    {# --- Mobile View --- #}
+    <div class="d-md-none">
+        {# --- Mobile Top Navbar --- #}
+        <nav class="navbar navbar-light bg-theme-primary sticky-top shadow-sm">
+            <div class="container-fluid">
+                <span class="navbar-brand text-white fw-bold">
+                    <i class="bi bi-person-plus-fill me-2"></i> Add Party
+                </span>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+                    <i class="bi bi-list fs-4 text-white"></i>
+                </button>
+            </div>
+        </nav>
+
+        {# --- Mobile Offcanvas Menu --- #}
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header border-bottom">
+                <h5 class="offcanvas-title fw-bold" id="offcanvasNavbarLabel">
+                    <i class="bi bi-box-seam me-2 text-theme-primary"></i> Anwari Ent. Menu
+                </h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                {# Ensure active_page logic is passed from the route correctly #}
+                <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if active_page == 'dashboard' else '' }}"
+                            href="{{ url_for('home') }}"><i class="bi bi-speedometer2 me-2"></i>
+                            Dashboard</a>
+                    </li>
+
+                    {# --- Purchase Section --- #}
+                    <li class="nav-item mt-2"> {# Optional: Add separator/header if desired #}
+                        <span class="nav-link text-muted disabled"
+                            style="font-size: 0.8rem; padding-left: 0;">PURCHASE</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if active_page == 'add_purchase' else '' }}"
+                            href="{{ url_for('purchase.add_purchase') }}"><i class="bi bi-plus-circle me-2"></i> Add
+                            Purchase</a>
+                    </li>
+                    <li class="nav-item"> {# NEW Purchase List Link #}
+                        <a class="nav-link {{ 'active' if active_page == 'list_purchases' else '' }}"
+                            href="{{ url_for('purchase.list_purchases') }}"><i class="bi bi-list-ul me-2"></i> List
+                            Purchases</a>
+                    </li>
+
+                    {# --- Sales Section --- #}
+                    <li class="nav-item mt-2"> {# Optional: Add separator/header if desired #}
+                        <span class="nav-link text-muted disabled"
+                            style="font-size: 0.8rem; padding-left: 0;">SALES</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if active_page == 'add_sale' else '' }}"
+                            href="{{ url_for('sales.add_sale') }}"><i class="bi bi-dash-circle me-2"></i> Add Sale</a>
+                    </li>
+                    <li class="nav-item"> {# NEW Sale List Link #}
+                        <a class="nav-link {{ 'active' if active_page == 'list_sales' else '' }}"
+                            href="{{ url_for('sales.list_sales') }}"><i class="bi bi-list-ul me-2"></i> List Sales</a>
+                    </li>
+
+                    {# --- Other Sections --- #}
+                    <li class="nav-item mt-2"> {# Optional: Add separator/header if desired #}
+                        <span class="nav-link text-muted disabled"
+                            style="font-size: 0.8rem; padding-left: 0;">MANAGEMENT</span>
+                    </li>
+                    <li class="nav-item">
+                        {# Assuming party list maps to 'parties' active_page #}
+                        <a class="nav-link {{ 'active' if active_page == 'parties' else '' }}"
+                            href="{{ url_for('parties.list_parties') }}"><i class="bi bi-people me-2"></i> Parties</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi bi-cash-coin me-2"></i> Payments</a> {# Placeholder #}
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi bi-bar-chart-line me-2"></i> Reports</a> {#
+                        Placeholder #}
+                    </li>
+
+                    {# --- User Section --- #}
+                    <li class="nav-item dropdown mt-3 pt-3 border-top">
+                        <a class="nav-link dropdown-toggle" href="#" id="offcanvasNavbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-2"></i> {{ session.get('user_name', 'User') }} {# Use
+                            session variable #}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="offcanvasNavbarDropdown">
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li><a class="dropdown-item" href="#">Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('login_bp.logout') }}">Sign out</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {# --- Add Party Form (Mobile) --- #}
+        <main class="container-fluid py-3 content content-area-mobile">
+            {# --- Flash Messages --- #}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show mb-3" role="alert">
+                {{ message | safe }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <div class="card shadow-sm rounded-3 add-party-card">
+                <div class="card-body p-3">
+                    <h5 class="card-title fw-bold mb-4 text-center">Add New Party</h5>
+                    <form action="{{ url_for('parties.add_party') }}" method="POST" novalidate>
+                        {# Basic Info #}
+                        <div class="mb-3"> {# Party Name #}
+                            <label for="partyNameMobile" class="form-label small">Party Name <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="partyNameMobile" name="name"
+                                value="{{ form_data.get('name', '') if form_data else '' }}" required
+                                placeholder="Full name">
+                        </div>
+                        <div class="mb-3"> {# Party Type #}
+                            <label for="partyTypeMobile" class="form-label small">Party Type <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-select form-select-sm" id="partyTypeMobile" name="party_type" required>
+                                <option value="" disabled {{ 'selected' if not (form_data and
+                                    form_data.get('party_type')) }}>-- Select --</option>
+                                {% for type_value in party_types %}
+                                <option value="{{ type_value }}" {{ 'selected' if form_data and
+                                    form_data.get('party_type')==type_value }}>{{ 'Seller' if type_value == 'Supplier'
+                                    else 'Customer' }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {# Contact Info #}
+                        <div class="mb-3"> {# Contact #}
+                            <label for="contactInfoMobile" class="form-label small">Contact Info</label>
+                            <input type="text" class="form-control form-control-sm" id="contactInfoMobile"
+                                name="contact_info" value="{{ form_data.get('contact_info', '') if form_data else '' }}"
+                                placeholder="Phone/Email">
+                        </div>
+                        <div class="mb-3"> {# Address #}
+                            <label for="addressMobile" class="form-label small">Address</label>
+                            <textarea class="form-control form-control-sm" id="addressMobile" name="address"
+                                rows="2">{{ form_data.get('address', '') if form_data else '' }}</textarea>
+                        </div>
+
+                        {# KYC & Bank Details #}
+                        <h6 class="text-muted border-top pt-3 mt-4 mb-3">KYC & Bank (Optional)</h6>
+                        <div class="mb-3"> {# PAN #}
+                            <label for="panNumberMobile" class="form-label small">PAN</label>
+                            <input type="text" class="form-control form-control-sm text-uppercase" id="panNumberMobile"
+                                name="pan_number" value="{{ form_data.get('pan_number', '') if form_data else '' }}"
+                                pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" placeholder="ABCDE1234F">
+                        </div>
+                        <div class="mb-3"> {# GSTIN #}
+                            <label for="gstinNumberMobile" class="form-label small">GSTIN</label>
+                            <input type="text" class="form-control form-control-sm text-uppercase"
+                                id="gstinNumberMobile" name="gstin_number"
+                                value="{{ form_data.get('gstin_number', '') if form_data else '' }}"
+                                pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}"
+                                placeholder="GST Number">
+                        </div>
+                        {# --- ADDED BANK ACCOUNT NAME --- #}
+                        <div class="mb-3">
+                            <label for="bankAccNameMobile" class="form-label small">Bank Acc Name</label>
+                            <input type="text" class="form-control form-control-sm" id="bankAccNameMobile"
+                                name="bank_account_name"
+                                value="{{ form_data.get('bank_account_name', '') if form_data else '' }}"
+                                placeholder="Name as per bank">
+                        </div>
+                        {# --- END ADDED --- #}
+                        <div class="mb-3"> {# Bank Acc No #}
+                            <label for="bankAccMobile" class="form-label small">Bank Acc No</label>
+                            <input type="text" class="form-control form-control-sm" id="bankAccMobile"
+                                name="bank_account_number"
+                                value="{{ form_data.get('bank_account_number', '') if form_data else '' }}"
+                                placeholder="Account Number">
+                        </div>
+                        <div class="mb-3"> {# IFSC #}
+                            <label for="ifscMobile" class="form-label small">IFSC Code</label>
+                            <input type="text" class="form-control form-control-sm text-uppercase" id="ifscMobile"
+                                name="bank_ifsc_code"
+                                value="{{ form_data.get('bank_ifsc_code', '') if form_data else '' }}"
+                                pattern="[A-Z]{4}0[A-Z0-9]{6}" placeholder="IFSC Code">
+                        </div>
+
+                        {# Action Buttons #}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-theme-primary btn-sm">Save Party</button>
+                            <a href="{{ url_for('parties.list_parties') }}"
+                                class="btn btn-outline-secondary btn-sm">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+        {# Mobile Bottom Nav - Optional, can remove if FAB is preferred #}
+        <footer class="fixed-bottom d-md-none mobile-bottom-nav p-2">
+            <nav class="nav nav-pills nav-fill">
+                <a class="nav-link" href="{{ url_for('home') }}"> {# Link to Home #}
+                    <i class="bi bi-house-door-fill"></i> Home
+                </a>
+                <a class="nav-link" href="{{ url_for('purchase.add_purchase') }}"> {# Link to Add Purchase #}
+                    <i class="bi bi-plus-circle-fill"></i> Purchase
+                </a>
+                <a class="nav-link" href="{{ url_for('sales.add_sale') }}"> {# Link to Add Sale #}
+                    <i class="bi bi-dash-circle-fill"></i> Sale
+                </a>
+                <a class="nav-link" href="#"> {# Placeholder for Reports #}
+                    <i class="bi bi-bar-chart-line-fill"></i> Reports
+                </a>
+                <a class="nav-link" href="#"> {# Placeholder for Profile/Menu Trigger? #}
+                    <i class="bi bi-person-fill"></i> Profile
+                </a>
+            </nav>
+        </footer>
+    </div> {# End .d-md-none (Mobile) #}
+
+    {# --- Scripts --- #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    {# Basic Bootstrap form validation script #}
+    <script> (function () { 'use strict'; var forms = document.querySelectorAll('form[novalidate]'); Array.prototype.slice.call(forms).forEach(function (form) { form.addEventListener('submit', function (event) { if (!form.checkValidity()) { event.preventDefault(); event.stopPropagation(); } form.classList.add('was-validated'); }, false); }); })(); </script>
+
+</body>
+
+</html>

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Summary - {{ report_month_display or 'Selected Month' }} - Anwari Enterprises</title>
+
+    {# --- CSS Includes --- #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {#
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}"> #}
+
+    <style>
+        :root {
+            --theme-color: #84283e;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --header-bg: #f8f9fa;
+            --body-bg-screen: #f0f2f5;
+            --container-bg: #ffffff;
+            --section-border: #e9ecef;
+            --danger-light: #f8d7da;
+            /* For Expense/Paid */
+            --success-light: #d1e7dd;
+            /* For Sales/Received */
+            --info-light: #cfe2ff;
+            /* For Purchase */
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--body-bg-screen);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .report-container {
+            max-width: 21cm;
+            /* A4 width */
+            margin: 1.5rem auto;
+            background-color: var(--container-bg);
+            padding: 1.5cm 1.2cm;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+            border: 1px solid var(--border-color);
+            border-top: 6px solid var(--theme-color);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        /* Header */
+        .report-header h1 {
+            color: var(--theme-color);
+            font-weight: 700;
+            font-size: 1.6rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .report-header p {
+            margin-bottom: 0.1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .report-info p {
+            margin-bottom: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .report-info strong {
+            font-weight: 600;
+            color: var(--text-color);
+            min-width: 80px;
+            display: inline-block;
+        }
+
+        /* Title */
+        .report-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-align: center;
+            margin: 1.5rem 0 1.8rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--theme-color);
+        }
+
+        /* Section Styling */
+        .report-section {
+            margin-bottom: 2rem;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--theme-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid var(--section-border);
+        }
+
+        .summary-card {
+            border: 1px solid var(--section-border);
+            border-radius: 0.375rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-card .card-header {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            padding: 0.6rem 1rem;
+            font-size: 0.95rem;
+        }
+
+        .summary-card .card-body {
+            padding: 0;
+        }
+
+        .summary-card .table {
+            margin-bottom: 0;
+        }
+
+        /* Table Styling */
+        .summary-table {
+            font-size: 0.85rem;
+        }
+
+        .summary-table thead th {
+            background-color: var(--header-bg) !important;
+            font-weight: 600;
+            border-bottom-width: 1px;
+            border-color: #adb5bd !important;
+            color: #343a40;
+            padding: 0.4rem 0.6rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .summary-table thead th.text-start {
+            text-align: left !important;
+        }
+
+        .summary-table thead th.text-end {
+            text-align: right !important;
+        }
+
+        .summary-table tbody td {
+            padding: 0.4rem 0.6rem;
+            vertical-align: middle;
+            border-top: 1px solid #f1f1f1 !important;
+        }
+
+        .summary-table tfoot th,
+        .summary-table tfoot td {
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-top: 2px solid var(--text-color) !important;
+            padding: 0.5rem 0.6rem;
+            background-color: #f8f9fa;
+        }
+
+        /* Profitability Table */
+        .profit-table td {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.9rem;
+            border: none;
+        }
+
+        .profit-table .metric-label {
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .profit-table .metric-value {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .profit-table .profit-row td {
+            font-weight: 700;
+            border-top: 1px solid var(--border-color);
+            color: var(--theme-color);
+        }
+
+        /* Using theme color for profit now */
+        .profit-table .expense-row td {
+            color: #dc3545;
+        }
+
+        /* Danger color for expense */
+
+        /* Stock Summary List */
+        .stock-summary-list dt {
+            font-weight: 500;
+            color: var(--text-muted);
+            padding-top: 0.2rem;
+        }
+
+        .stock-summary-list dd {
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding-top: 0.2rem;
+        }
+
+        .stock-summary-list .stock-remaining {
+            color: var(--theme-color);
+        }
+
+        /* Footer */
+        .report-footer {
+            margin-top: 2.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Print-specific styles */
+        @media print {
+            body {
+                background-color: #ffffff;
+                font-size: 9pt;
+            }
+
+            .report-container {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border: none;
+                border-top: none;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .report-header h1 {
+                font-size: 14pt;
+                color: #000 !important;
+            }
+
+            .report-title {
+                font-size: 12pt;
+                color: #000 !important;
+                border-bottom-color: #ccc !important;
+            }
+
+            .section-title {
+                font-size: 10pt;
+                color: #000 !important;
+                border-bottom-color: #ccc !important;
+            }
+
+            .summary-card {
+                border: 1px solid #ccc !important;
+                page-break-inside: avoid !important;
+            }
+
+            .summary-card .card-header {
+                background-color: #eee !important;
+            }
+
+            .summary-table,
+            .profit-table,
+            .stock-summary-list {
+                font-size: 8pt;
+            }
+
+            .summary-table thead th {
+                background-color: #eee !important;
+                color: #000 !important;
+                border-color: #bbb !important;
+                font-size: 7.5pt;
+                padding: 0.3rem 0.4rem;
+            }
+
+            .summary-table tbody td {
+                border-color: #ddd !important;
+                padding: 0.3rem 0.4rem;
+                background-color: #fff !important;
+            }
+
+            .summary-table tfoot th,
+            .summary-table tfoot td {
+                font-size: 8.5pt;
+                border-top-color: #333 !important;
+                background-color: #eee !important;
+            }
+
+            .profit-table td {
+                font-size: 8.5pt;
+                padding: 0.3rem 0.5rem;
+            }
+
+            .profit-table .profit-row td {
+                color: #000 !important;
+            }
+
+            .profit-table .expense-row td {
+                color: #000 !important;
+            }
+
+            /* Expenses black in print */
+            .report-footer {
+                border-top-color: #ccc !important;
+                font-size: 7pt;
+            }
+
+            tr,
+            td,
+            th,
+            div,
+            p,
+            section,
+            header,
+            footer,
+            dl,
+            dt,
+            dd,
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                page-break-inside: avoid !important;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tfoot {
+                display: table-footer-group;
+            }
+        }
+
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container my-4 no-print">
+        <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+            <a href="{{ url_for('reports.report_form') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i> Back to Reports Form
+            </a>
+            <div>
+                <button class="btn btn-sm btn-primary rounded-pill" onclick="window.print();">
+                    <i class="bi bi-printer me-1"></i> Print Summary
+                </button>
+                {# Export buttons removed #}
+            </div>
+        </div>
+    </div>
+
+    <div class="report-container">
+        {# --- Report Header --- #}
+        <header class="row report-header mb-3 align-items-center">
+            <div class="col-7">
+                <h1>Anwari Enterprises</h1>
+                <p>47, Maluka Street NH09 Hapur Bypass, Hapur, UP, 245101</p>
+                <p>Contact: +91 11 6927 0510 | GSTIN: YOUR_GSTIN_HERE</p>
+            </div>
+            <div class="col-5 text-end report-info">
+                <h2 class="h5 mb-3">Monthly Summary Report</h2>
+                <p><strong>Month:</strong> {{ report_month_display or 'N/A' }}</p>
+                <p><strong>Generated By:</strong> {{ generated_by or 'System' }}</p>
+                <p><strong>Generated On:</strong> {{ generated_on.strftime('%d-%b-%Y %I:%M %p') if generated_on else
+                    'N/A' }} </p>
+            </div>
+        </header>
+
+        <h3 class="report-title">MONTHLY PERFORMANCE SUMMARY</h3>
+
+        {# --- Sections Arranged Sequentially --- #}
+
+        {# Section 1: Sales Summary #}
+        <section class="report-section">
+            <h4 class="section-title">Sales Summary (Income)</h4>
+            <div class="table-responsive">
+                <table class="table summary-table table-bordered table-sm table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-start">Date</th>
+                            <th class="text-start">Party</th>
+                            <th>Bill#</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-center">Wt(kg)</th>
+                            <th class="text-end">Amount(₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales_transactions %}
+                        <tr>
+                            <td>{{ sale.transaction_date.strftime('%d-%b') }}</td>
+                            <td>{{ sale.party.name if sale.party else 'N/A' }}</td>
+                            <td>{{sale.bill_number or '-'}}</td>
+                            <td class="text-center">{{ sale.quantity }}</td>
+                            <td class="text-center">{{ "{:.2f}".format(sale.weight) if sale.weight else '-' }}</td>
+                            <td class="text-end">{{ "{:,.2f}".format(sale.total_amount) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted p-3">No sales this month.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-end">Month Total Sales:</th>
+                            <th class="text-center">{{ total_sales_qty or 0 }}</th>
+                            <th class="text-center">{{ "{:,.2f}".format(total_sales_weight or 0) }}</th>
+                            <th class="text-end">₹ {{ "{:,.2f}".format(total_sales_amount or 0) }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        {# Section 2: Purchase Summary #}
+        <section class="report-section">
+            <h4 class="section-title">Purchase Summary (Cost of Goods)</h4> {# Changed title slightly #}
+            <div class="table-responsive">
+                <table class="table summary-table table-bordered table-sm table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-start">Date</th>
+                            <th class="text-start">Party</th>
+                            <th>Bill#</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-center">Wt(kg)</th>
+                            <th class="text-end">Amount(₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for purchase in purchase_transactions %}
+                        <tr>
+                            <td>{{ purchase.transaction_date.strftime('%d-%b') }}</td>
+                            <td>{{ purchase.party.name if purchase.party else 'N/A' }}</td>
+                            <td>{{purchase.bill_number or '-'}}</td>
+                            <td class="text-center">{{ purchase.quantity }}</td>
+                            <td class="text-center">{{ "{:.2f}".format(purchase.weight) if purchase.weight else '-' }}
+                            </td>
+                            <td class="text-end">{{ "{:,.2f}".format(purchase.total_amount) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted p-3">No purchases this month.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-end">Month Total Purchases:</th>
+                            <th class="text-center">{{ total_purchase_qty or 0 }}</th>
+                            <th class="text-center">{{ "{:,.2f}".format(total_purchase_weight or 0) }}</th>
+                            <th class="text-end">₹ {{ "{:,.2f}".format(total_purchase_amount or 0) }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        {# Section 3: Payment Summary #}
+        <section class="report-section">
+            <h4 class="section-title">Payment Summary</h4>
+            <div class="row">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="summary-card h-100">
+                        <div class="card-header">Payments Received (In)</div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table summary-table table-sm table-striped mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Party</th>
+                                            <th>Mode</th>
+                                            <th class="text-end">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for p in payments_received_list %}<tr>
+                                            <td>{{ p.payment_date.strftime('%d-%b') }}</td>
+                                            <td>{{ p.party.name if p.party else '-' }}</td>
+                                            <td>{{ p.payment_mode or 'Cash' }}</td>
+                                            <td class="text-end">{{ "{:,.2f}".format(p.amount) }}</td>
+                                        </tr>{% else %}<tr>
+                                            <td colspan="4" class="text-center text-muted small p-2">None</td>
+                                        </tr>{% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="3" class="text-end">Total Received:</th>
+                                            <th class="text-end">₹ {{ "{:,.2f}".format(total_payments_received or 0) }}
+                                            </th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="summary-card h-100">
+                        <div class="card-header">Payments Paid (Out)</div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table summary-table table-sm table-striped mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Party</th>
+                                            <th>Mode</th>
+                                            <th class="text-end">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for p in payments_paid_list %}<tr>
+                                            <td>{{ p.payment_date.strftime('%d-%b') }}</td>
+                                            <td>{{ p.party.name if p.party else '-' }}</td>
+                                            <td>{{ p.payment_mode or 'Cash' }}</td>
+                                            <td class="text-end">{{ "{:,.2f}".format(p.amount) }}</td>
+                                        </tr>{% else %}<tr>
+                                            <td colspan="4" class="text-center text-muted small p-2">None</td>
+                                        </tr>{% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="3" class="text-end">Total Paid:</th>
+                                            <th class="text-end">₹ {{ "{:,.2f}".format(total_payments_paid or 0) }}</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# --- NEW Section: Expense Summary --- #}
+        <section class="report-section">
+            <h4 class="section-title">Expense Summary</h4>
+            <div class="table-responsive">
+                <table class="table summary-table table-bordered table-sm table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-start">Date</th>
+                            <th class="text-start">Category</th>
+                            <th class="text-start">Notes / Reference</th>
+                            <th class="text-end">Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {# Loop through expenses passed from the route #}
+                        {% for expense in expenses_list %}
+                        <tr>
+                            <td>{{ expense.expense_date.strftime('%d-%b') }}</td>
+                            <td>{{ expense.category.name if expense.category else 'N/A' }}</td>
+                            <td>{{ expense.notes or expense.reference or '-' }}</td>
+                            <td class="text-end">{{ "{:,.2f}".format(expense.amount) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted p-3">No expenses recorded this month.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-end">Month Total Expenses:</th>
+                            <th class="text-end">₹ {{ "{:,.2f}".format(total_expenses or 0) }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+
+        {# --- Section 5 & 6 Side-by-Side --- #}
+        <section class="report-section">
+            <div class="row g-4">
+                {# Stock Summary #}
+                <div class="col-md-6">
+                    <h4 class="section-title">Stock Movement</h4>
+                    <div class="summary-card">
+                        <div class="card-body p-3 stock-summary-list">
+                            <dl class="row mb-0">
+                                <dt class="col-7">Total Qty Purchased:</dt>
+                                <dd class="col-5 text-end">{{ total_purchase_qty or 0 }}</dd>
+                                <dt class="col-7">Total Qty Sold:</dt>
+                                <dd class="col-5 text-end">{{ total_sale_qty or 0 }}</dd>
+                                <dt class="col-7 border-top pt-2 mt-1">Net Stock Change (Qty):</dt>
+                                <dd class="col-5 text-end border-top pt-2 mt-1 stock-remaining">{{ stock_remaining_qty
+                                    or 0 }}</dd>
+                                <dt class="col-7 mt-2">Total Wt Purchased (kg):</dt>
+                                <dd class="col-5 text-end mt-2">{{ "{:,.2f}".format(total_purchase_weight or 0) }}</dd>
+                                <dt class="col-7">Total Wt Sold (kg):</dt>
+                                <dd class="col-5 text-end">{{ "{:,.2f}".format(total_sale_weight or 0) }}</dd>
+                                <dt class="col-7 border-top pt-2 mt-1">Net Stock Change (Wt):</dt>
+                                <dd class="col-5 text-end border-top pt-2 mt-1 stock-remaining">{{
+                                    "{:,.2f}".format(stock_remaining_weight or 0) }}</dd>
+                            </dl>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0"><small class="text-muted d-block">Note:
+                                Stock change based on transactions within the month only.</small></div>
+                    </div>
+                </div>
+                {# Profitability Summary (UPDATED) #}
+                <div class="col-md-6">
+                    <h4 class="section-title">Financial Snapshot*</h4>
+                    <div class="summary-card">
+                        <div class="card-body p-3">
+                            <table class="table table-sm profit-table mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td class="metric-label">Total Sales</td>
+                                        <td class="metric-value">₹ {{ "{:,.2f}".format(total_sales_amount or 0) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="metric-label">Total Purchases</td>
+                                        <td class="metric-value">(₹ {{ "{:,.2f}".format(total_purchase_amount or 0) }})
+                                        </td>
+                                    </tr>
+                                    {# ADDED Expense Row #}
+                                    <tr class="expense-row">
+                                        <td class="metric-label">Total Expenses</td>
+                                        <td class="metric-value">(₹ {{ "{:,.2f}".format(total_expenses or 0) }})</td>
+                                    </tr>
+                                    {# UPDATED Profit Calculation Label/Variable #}
+                                    <tr class="profit-row">
+                                        <td class="metric-label">Operating Income*</td>
+                                        <td class="metric-value">₹ {{ "{:,.2f}".format(operating_income or 0) }}</td>
+                                    </tr>
+                                    <tr style="height: 10px;">
+                                        <td colspan="2"></td>
+                                    </tr> {# Spacer #}
+                                    <tr>
+                                        <td class="metric-label">Payments Received</td>
+                                        <td class="metric-value">₹ {{ "{:,.2f}".format(total_payments_received or 0) }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="metric-label">Payments Made</td>
+                                        <td class="metric-value">(₹ {{ "{:,.2f}".format(total_payments_paid or 0) }})
+                                        </td>
+                                    </tr>
+                                    {# ADDED Expense Payments to Flow #}
+                                    <tr class="expense-row">
+                                        <td class="metric-label">Expenses Paid</td>
+                                        <td class="metric-value">(₹ {{ "{:,.2f}".format(total_expenses or 0) }})</td>
+                                    </tr>
+                                    <tr class="profit-row">
+                                        <td class="metric-label">Net Cash Flow*</td>
+                                        <td class="metric-value">₹ {{ "{:,.2f}".format(net_payment_flow or 0) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <small class="text-muted d-block">*Note: Operating Income = Sales - Purchases - Expenses
+                                (ignores stock valuation/COGS). Net Cash Flow = Received - Paid - Expenses.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        {# --- Footer --- #}
+        <footer class="report-footer">
+            <p>This is a computer-generated report.</p>
+            <p>&copy; {{ generated_on.year if generated_on else '2025' }} Anwari Enterprises. All Rights Reserved.</p>
+        </footer>
+
+    </div> {# End report-container #}
+
+</body>
+
+</html>
